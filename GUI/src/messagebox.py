@@ -94,7 +94,7 @@ class MessageBox:
         return redmodulo/256
     def getBlueColorShare(self, color):
         redmodulo = color%65536
-        return redmodulo%65536
+        return redmodulo%256
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
