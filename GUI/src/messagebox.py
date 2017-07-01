@@ -88,13 +88,13 @@ class MessageBox:
             traceback.print_exc()
         return bisactivated
     def getRedColorShare(self, color):
-        return color/65536
+        return int(color/65536)
     def getGreenColorShare(self, color):
         redmodulo = color%65536
-        return redmodulo/256
+        return int(redmodulo/256)
     def getBlueColorShare(self, color):
         redmodulo = color%65536
-        return redmodulo%65536
+        return redmodulo%256
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
