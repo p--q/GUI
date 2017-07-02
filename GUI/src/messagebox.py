@@ -10,23 +10,21 @@ from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 from contextlib import contextmanager
 
 def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
-    desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-    with loadmodel(desktop) as model:
-        peer = model.getCurrentController().getFrame().getContainerWindow()
-        bishighcontrast = False
-        msgbox = peer.getToolkit().createMessageBox(peer, ERRORBOX, BUTTONS_OK, "My Sampletitle", "HighContrastMode is enabled: {}".format(bishighcontrast))
-        msgbox.execute()
-        msgbox.dispose()
-@contextmanager
+    desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)  # コンポーネントコンテクストからデスクトップをインスタンス化。
+    with loadmodel(desktop) as model:  # Wirterドキュメントを隠し属性で開いてモデルを取得。処理が終了したらモデルを閉じる。
+        peer = model.getCurrentController().getFrame().getContainerWindow()  # モデルからコントローラを取得して、コントローラからフレームを取得して、フレームからコンテナウィンドウ=ピアオブジェクトを取得。
+        bishighcontrast = False  # メッセージボックスに表示させる文字列にする。
+        msgbox = peer.getToolkit().createMessageBox(peer, ERRORBOX, BUTTONS_OK, "My Sampletitle", "HighContrastMode is enabled: {}".format(bishighcontrast))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
+        msgbox.execute()  # メッセージボックスを表示。
+        msgbox.dispose()  # メッセージボックスを破棄。
+@contextmanager  # コンテクストマネージャーを作成。
 def loadmodel(desktop):
-    prop = PropertyValue(Name="Hidden", Value=True)
-    model = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,)) 
+    prop = PropertyValue(Name="Hidden", Value=True)  # 隠し属性を設定。
+    model = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,)) # 新規Writerドキュメントを新しいフレームに開く。
     yield model
-    if hasattr(model, "close"):
-        model.close(False)
-    else:
-        model.dispose()    
-    
+    model.close(True)  # モデルを閉じる。
+
+
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
@@ -49,7 +47,7 @@ def connectOffice(func):
             func(ctx, smgr)  # 引数の関数の実行。
         except:
             traceback.print_exc()
-        # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。
+#         soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。
         desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
         prop = PropertyValue(Name="Hidden", Value=True)
         desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
