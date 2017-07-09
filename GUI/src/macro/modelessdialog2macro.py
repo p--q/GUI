@@ -40,7 +40,7 @@ def macro():
     btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
     btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
 #     subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。これがなくても表示される。     
-#     subwindow.execute()  # execute()にするとモダルダイアログになる。
+#     subwindow.execute()  # TaskCreatorから得たコンテナウィンドウにはexecute()がない。
 #     subwindow.dispose()
 class BtnListener(unohelper.Base, XActionListener):
     def __init__(self, controlcontainer, window):  

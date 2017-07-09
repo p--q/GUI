@@ -15,6 +15,8 @@ from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 from com.sun.star.awt.WindowAttribute import  CLOSEABLE, SHOW, MOVEABLE, BORDER
 from com.sun.star.awt import WindowDescriptor
 from com.sun.star.awt import Rectangle
+from com.sun.star.beans import NamedValue
+
 
 def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
     desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
@@ -93,7 +95,7 @@ def connectOffice(func):
             func(ctx, smgr)  # 引数の関数の実行。
         except:
             traceback.print_exc()
-        _terminateOffice(ctx, smgr) # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。    
+#         _terminateOffice(ctx, smgr) # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。    
     def _terminateOffice(ctx, smgr):  # soffice.binの終了処理。
         desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
         prop = PropertyValue(Name="Hidden", Value=True)
