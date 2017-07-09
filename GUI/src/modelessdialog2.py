@@ -5,7 +5,6 @@ import traceback
 from functools import wraps
 import sys
 from com.sun.star.beans import PropertyValue
-import uno
 from com.sun.star.awt.WindowClass import SIMPLE
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
@@ -14,109 +13,60 @@ from com.sun.star.awt import XActionListener
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 from com.sun.star.awt.WindowAttribute import  CLOSEABLE, SHOW, MOVEABLE, BORDER
-from com.sun.star.awt.PushButtonType import OK 
-
+from com.sun.star.awt import WindowDescriptor
+from com.sun.star.awt import Rectangle
 
 def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
     desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-  
-#     prop = PropertyValue(Name="Hidden", Value=True)
-#     desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
-      
     doc = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, ())
-    
-    
-# def macro():
-#     ctx = XSCRIPTCONTEXT.getComponentContext()
-#     smgr = ctx.getServiceManager()
-#     doc = XSCRIPTCONTEXT.getDocument()   
-
-    
-    
-    parentframe = doc.getCurrentController().getFrame()
-    peer = parentframe.getContainerWindow()
-    toolkit = peer.getToolkit()
-    window =  createWindow(toolkit, peer, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)
-    frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)
-    frame.initialize(window)
-#     frame.setCreator(parentframe)
-    frame.setName("NewFrame")
-#     frame.setTitle("New Frame")
-#     parentframe.getFrames().append(frame)
-    window.setVisible(True)
-    controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
-    controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)
-    controlcontainermodel.setPropertyValue("BackgroundColor", -1)
-    controlcontainer.setModel(controlcontainermodel)
-    controlcontainer.createPeer(toolkit, window)
-    controlcontainer.setPosSize(0, 0, 200, 200, POSSIZE)
-    frame.setComponent(controlcontainer, None)
-    label = createControl(smgr, ctx, "FixedText", 10, 0, 180, 30, ("Label", "VerticalAlign"), ("Label1", BOTTOM))
-    edit = createControl(smgr, ctx, "Edit", 10, 40, 180, 30, (), ())
-    btn = createControl(smgr, ctx, "Button", 110, 130, 80, 35, ("DefaultButton", "Label"), (True, "btn"))
-
-    controlcontainer.addControl("label", label)
-    controlcontainer.addControl("btn", btn)
-    controlcontainer.addControl("edit", edit)
-    
-    edit.setFocus()
-    btn.setActionCommand("btn") 
-    btn.addActionListener(BtnListener(controlcontainer))
-     
-     
-        
-#     window.setVisible(True)  # モードレスダイアログ。オートメーションではボタンが起動しない。
-
-#     msgbox = toolkit.createMessageBox(window, INFOBOX, BUTTONS_OK, "Text Field", "{}".format("ctrl.getText()"))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
-#     msgbox.execute() 
-
-#     window.execute()  # モダルダイアログ。
-    
-#     window.dispose()
-    
+    docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
+    docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
+    toolkit = docwindow.getToolkit()  # ツールキットを取得。
+    subwindow =  createWindow(toolkit, docwindow, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する
+    frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
+    frame.initialize(subwindow)  # フレームにウィンドウを入れる。
+#     frame.setCreator(docframe)  # フレームの親フレームを設定する。
+    frame.setName("NewFrame")  # フレーム名を設定。
+#     frame.setTitle("New Frame")  # フレームのタイトルを設定。これはバグで反映されない。
+    docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+    controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
+    controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールのモデルの集合を作成。
+    controlcontainermodel.setPropertyValue("BackgroundColor", -1)  # 背景色。-1は何色?
+    controlcontainer.setModel(controlcontainermodel)  # コントールコンテナにモデルを設定。
+    controlcontainer.createPeer(toolkit, subwindow)  # 新しく作ったウィンドウ内にコントロールコンテナのコントロールをツールキットで描画する。
+    controlcontainer.setPosSize(0, 0, 200, 200, POSSIZE)  # コントロールの表示座標を設定。4つ目の引数は前の引数の意味を設定する。
+    frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
+    label = createControl(smgr, ctx, "FixedText", 10, 0, 180, 30, ("Label", "VerticalAlign"), ("Label1", BOTTOM))  # 固定文字コントールを作成。
+    edit = createControl(smgr, ctx, "Edit", 10, 40, 180, 30, (), ())  # 編集枠コントロールを作成。
+    btn = createControl(smgr, ctx, "Button", 110, 130, 80, 35, ("DefaultButton", "Label"), (True, "btn"))  # ボタンコントロールを作成。
+    controlcontainer.addControl("label", label)  # コントロールコンテナにコントロールを名前を設定して追加。
+    controlcontainer.addControl("btn", btn)  # コントロールコンテナにコントロールを名前を設定して追加。
+    controlcontainer.addControl("edit", edit)  # コントロールコンテナにコントロールを名前を設定して追加。
+    edit.setFocus()  # 編集枠コントロールにフォーカスを設定する。
+    btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
+    btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
+#     subwindow.setVisible(True)  # モードレスダイアログにするとボタンのリスナーが呼ばれない。
+    subwindow.execute()  # execute()にするとモダルダイアログになる。
+    subwindow.dispose()
 class BtnListener(unohelper.Base, XActionListener):
-    def __init__(self, controlcontainer):
-        self.controlcontainer = controlcontainer
+    def __init__(self, controlcontainer, window):  
+        self.controlcontainer = controlcontainer  # コントロールの集合。
+        self.window = window  # コントロールのあるウィンドウ。
     def actionPerformed(self, actionevent):
-#         import pydevd; pydevd.settrace()
-#         cmd = actionevent.ActionCommand
-#         ctrl = actionevent.Source
-        
-        editcontrol = self.controlcontainer.getControl("edit")
-        editcontrol.setText("By Button Click")
-        
-#         toolkit = self.peer.getToolkit()
-#         if cmd == "btn":
-#             
-#             ctrl.setText("By Button Click")
-#             
-#             msgbox = toolkit.createMessageBox(self.peer, INFOBOX, BUTTONS_OK, "Text Field", "{}".format(ctrl.getText()))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
-#             msgbox.execute()  # メッセージボックスを表示。
-#             msgbox.dispose()  # メッセージボックスを破棄。
+        cmd = actionevent.ActionCommand  # アクションコマンドを取得。
+        editcontrol = self.controlcontainer.getControl("edit")  # editという名前のコントロールを取得。
+        if cmd == "btn":  # 開くsyんコマンドがbtnのとき
+            editcontrol.setText("By Button Click")  # editコントロールに文字列を代入。
+            toolkit = self.window.getToolkit()
+            msgbox = toolkit.createMessageBox(self.window, INFOBOX, BUTTONS_OK, "Text Field", "{}".format(editcontrol.getText()))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
+            msgbox.execute()  # メッセージボックスを表示。
+            msgbox.dispose()  # メッセージボックスを破棄。
     def disposing(self, eventobject):
-        pass
-
-
-
-
-
+        pass              
 def createWindow(toolkit, parent, service, attr, nX, nY, nWidth, nHeight):
-    d = uno.createUnoStruct("com.sun.star.awt.WindowDescriptor")
-    d.Type = SIMPLE
-    d.WindowServiceName = service
-    d.ParentIndex = -1
-    d.Bounds = createRect(nX, nY, nWidth, nHeight)
-    d.Parent = parent
-    d.WindowAttributes = attr
+    aRect = Rectangle(X=nX, Y=nY, Width=nWidth, Height=nHeight)
+    d = WindowDescriptor(Type=SIMPLE, WindowServiceName=service, ParentIndex=-1, Bounds=aRect, Parent=parent, WindowAttributes=attr)
     return toolkit.createWindow(d)
-def createRect(x,y,width,height):
-    aRect = uno.createUnoStruct("com.sun.star.awt.Rectangle")
-    aRect.X = x
-    aRect.Y = y
-    aRect.Width = width
-    aRect.Height = height
-    return aRect
-# create control by its type with property values
 def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
     ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(ctype), ctx)
     ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(ctype), ctx)
@@ -124,9 +74,6 @@ def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
     ctrl.setModel(ctrl_model)
     ctrl.setPosSize(x, y, width, height, POSSIZE)
     return ctrl
-
-
-
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
@@ -146,7 +93,7 @@ def connectOffice(func):
             func(ctx, smgr)  # 引数の関数の実行。
         except:
             traceback.print_exc()
-#         _terminateOffice(ctx, smgr) # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。    
+        _terminateOffice(ctx, smgr) # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。    
     def _terminateOffice(ctx, smgr):  # soffice.binの終了処理。
         desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
         prop = PropertyValue(Name="Hidden", Value=True)

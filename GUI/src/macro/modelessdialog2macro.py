@@ -1,15 +1,14 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-from com.sun.star.awt.WindowClass import SIMPLE
+# from com.sun.star.awt.WindowClass import SIMPLE
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
 import unohelper
 from com.sun.star.awt import XActionListener
-from com.sun.star.awt.WindowAttribute import  CLOSEABLE, SHOW, MOVEABLE, BORDER
-from com.sun.star.awt import WindowDescriptor
 from com.sun.star.awt import Rectangle
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
+from com.sun.star.beans import NamedValue
 
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
@@ -18,12 +17,11 @@ def macro():
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
     toolkit = docwindow.getToolkit()  # ツールキットを取得。
-    subwindow =  createWindow(toolkit, docwindow, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する
-    frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
-    frame.initialize(subwindow)  # フレームにウィンドウを入れる。
-#     frame.setCreator(docframe)  # フレームの親フレームを設定する。
-    frame.setName("NewFrame")  # フレーム名を設定。
-#     frame.setTitle("New Frame")  # フレームのタイトルを設定。これはバグで反映されない。
+    taskcreator = smgr.createInstanceWithContext('com.sun.star.frame.TaskCreator', ctx)
+    args = NamedValue("PosSize", Rectangle(150, 150, 200, 200)), NamedValue("FrameName", "NewFrame"), NamedValue("MakeVisible", True)
+    frame = taskcreator.createInstanceWithArguments(args)
+    subwindow = frame.getContainerWindow()
+    frame.setTitle("New Frame")  # フレームのタイトルを設定。
     docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
     controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
     controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールのモデルの集合を作成。
@@ -59,10 +57,6 @@ class BtnListener(unohelper.Base, XActionListener):
             msgbox.dispose()  # メッセージボックスを破棄。
     def disposing(self, eventobject):
         pass
-def createWindow(toolkit, parent, service, attr, nX, nY, nWidth, nHeight):
-    aRect = Rectangle(X=nX, Y=nY, Width=nWidth, Height=nHeight)
-    d = WindowDescriptor(Type=SIMPLE, WindowServiceName=service, ParentIndex=-1, Bounds=aRect, Parent=parent, WindowAttributes=attr)
-    return toolkit.createWindow(d)
 def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
     ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(ctype), ctx)
     ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(ctype), ctx)
