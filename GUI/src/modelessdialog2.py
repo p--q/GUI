@@ -17,19 +17,19 @@ from com.sun.star.awt.WindowAttribute import  CLOSEABLE, SHOW, MOVEABLE, BORDER
 from com.sun.star.awt.PushButtonType import OK 
 
 
-# def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
-#     desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-#  
-# #     prop = PropertyValue(Name="Hidden", Value=True)
-# #     desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
-#      
-#     doc = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, ())
+def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
+    desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
+  
+#     prop = PropertyValue(Name="Hidden", Value=True)
+#     desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
+      
+    doc = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, ())
     
     
-def macro():
-    ctx = XSCRIPTCONTEXT.getComponentContext()
-    smgr = ctx.getServiceManager()
-    doc = XSCRIPTCONTEXT.getDocument()   
+# def macro():
+#     ctx = XSCRIPTCONTEXT.getComponentContext()
+#     smgr = ctx.getServiceManager()
+#     doc = XSCRIPTCONTEXT.getDocument()   
 
     
     
@@ -39,10 +39,10 @@ def macro():
     window =  createWindow(toolkit, peer, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)
     frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)
     frame.initialize(window)
-    frame.setCreator(parentframe)
+#     frame.setCreator(parentframe)
     frame.setName("NewFrame")
-    frame.setTitle("New Frame")
-    parentframe.getFrames().append(frame)
+#     frame.setTitle("New Frame")
+#     parentframe.getFrames().append(frame)
     window.setVisible(True)
     controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)
     controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)

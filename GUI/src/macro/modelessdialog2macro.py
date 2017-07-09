@@ -21,9 +21,9 @@ def macro():
     subwindow =  createWindow(toolkit, docwindow, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する
     frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
     frame.initialize(subwindow)  # フレームにウィンドウを入れる。
-    frame.setCreator(docframe)  # フレームの親フレームを設定する。
+#     frame.setCreator(docframe)  # フレームの親フレームを設定する。
     frame.setName("NewFrame")  # フレーム名を設定。
-    frame.setTitle("New Frame")  # フレームのタイトルを設定。これはバグで反映されない。
+#     frame.setTitle("New Frame")  # フレームのタイトルを設定。これはバグで反映されない。
     docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
     controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
     controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールのモデルの集合を作成。
