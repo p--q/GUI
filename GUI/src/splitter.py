@@ -14,49 +14,34 @@ import uno
 from com.sun.star.awt.WindowClass import SIMPLE
 from com.sun.star.beans import NamedValue
 from com.sun.star.awt import Rectangle
-
+from com.sun.star.awt import WindowDescriptor
 
 def main(ctx, smgr):
     desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop",ctx)
-    frame = desktop.getActiveFrame()
-    parent = frame.getContainerWindow()
-    toolkit = parent.getToolkit()
-    subwin = createWindow(toolkit, parent, "modaldialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 100, 100, 300, 200)
-    
-#     taskcreator = smgr.createInstanceWithContext('com.sun.star.frame.TaskCreator', ctx)
-#     args = NamedValue("PosSize", Rectangle(100, 100, 300, 200)), 
-#     frame = taskcreator.createInstanceWithArguments(args)
-#     subwin = frame.getContainerWindow()
-#     toolkit = subwin.getToolkit()
-
-    
-    cont = createControl(smgr, ctx, "Container", 0, 0, 300, 200, (), ())
-    cont.setPosSize(0, 0, 300, 200, POSSIZE)
-    cont.createPeer(toolkit, subwin)
-    
-#     frame.setComponent(cont, None)
-    
+    doc = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, ())
+    docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
+    docwindow = docframe.getContainerWindow()
+    toolkit = docwindow.getToolkit()
+    subwindow = createWindow(toolkit, docwindow, "modaldialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 100, 100, 300, 200)
+    controlcontainer = createControl(smgr, ctx, "Container", 0, 0, 300, 200, (), ())
+    controlcontainer.setPosSize(0, 0, 300, 200, POSSIZE)
+    controlcontainer.createPeer(toolkit, subwindow)
     edit1 = createControl(smgr, ctx, "Edit", 0, 0, 300, 99, ("AutoVScroll", "MultiLine",), (True, True,))
     edit2 = createControl(smgr, ctx, "Edit", 0, 105, 300, 96, ("AutoVScroll", "MultiLine",), (True, True,))
-    cont.addControl("edit1",edit1)
-    cont.addControl("edit2",edit2)
-    spl = createWindow(toolkit, cont.getPeer(), "splitter", SHOW + BORDER, 0, 100, 300, 5)
+    controlcontainer.addControl("edit1",edit1)
+    controlcontainer.addControl("edit2",edit2)
+    spl = createWindow(toolkit, controlcontainer.getPeer(), "splitter", SHOW + BORDER, 0, 100, 300, 5)  # コントロールコンテナの上にさらにウィンドウを作成する。
     spl.setProperty("BackgroundColor", 0xEEEEEE)
     spl.setProperty("Border",1)
-    spl.addMouseMotionListener(mouse_motion(cont))
-    #inspect(ctx,spl)
-    subwin.execute()
-
-#     subwin.setVisible(True)
-    
-    
+    spl.addMouseMotionListener(mouse_motion(controlcontainer))
+    subwindow.execute()
     spl.dispose()
-    subwin.dispose()
+    subwindow.dispose()
 class mouse_motion(unohelper.Base, XMouseMotionListener):
-    def __init__(self,cont):
-        self.cont = cont
-        self.edit1 = self.cont.getControl("edit1")
-        self.edit2 = self.cont.getControl("edit2")
+    def __init__(self,controlcontainer):
+        self.controlcontainer = controlcontainer
+        self.edit1 = self.controlcontainer.getControl("edit1")
+        self.edit2 = self.controlcontainer.getControl("edit2")
     def disposing(self,ev):
         pass
     def mouseMoved(self,ev):
@@ -71,21 +56,9 @@ class mouse_motion(unohelper.Base, XMouseMotionListener):
                 self.edit1.setPosSize(0, 0, 0, edit1_pos.Height + ev.Y, HEIGHT)
                 self.edit2.setPosSize(0, edit2_pos.Y + ev.Y, 0,edit2_pos.Height - ev.Y, Y + HEIGHT)
 def createWindow(toolkit, parent, service, attr, nX, nY, nWidth, nHeight):
-    d = uno.createUnoStruct("com.sun.star.awt.WindowDescriptor")
-    d.Type = SIMPLE
-    d.WindowServiceName = service
-    d.ParentIndex = -1
-    d.Bounds = createRect(nX, nY, nWidth, nHeight)
-    d.Parent = parent
-    d.WindowAttributes = attr
+    aRect = Rectangle(X=nX, Y=nY, Width=nWidth, Height=nHeight)
+    d = WindowDescriptor(Type=SIMPLE, WindowServiceName=service, ParentIndex=-1, Bounds=aRect, Parent=parent, WindowAttributes=attr)
     return toolkit.createWindow(d)
-def createRect(x,y,width,height):
-    aRect = uno.createUnoStruct("com.sun.star.awt.Rectangle")
-    aRect.X = x
-    aRect.Y = y
-    aRect.Width = width
-    aRect.Height = height
-    return aRect
 # create control by its type with property values
 def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
     ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % ctype, ctx)
@@ -94,8 +67,6 @@ def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
     ctrl.setModel(ctrl_model)
     ctrl.setPosSize(x, y, width, height, POSSIZE)
     return ctrl
-
-
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
