@@ -19,8 +19,8 @@ def macro():
     toolkit = docwindow.getToolkit()  # ツールキットを取得。
     taskcreator = smgr.createInstanceWithContext('com.sun.star.frame.TaskCreator', ctx)
     args = NamedValue("PosSize", Rectangle(150, 150, 200, 200)), NamedValue("FrameName", "NewFrame"), NamedValue("MakeVisible", True)
-    frame = taskcreator.createInstanceWithArguments(args)
-    subwindow = frame.getContainerWindow()
+    frame = taskcreator.createInstanceWithArguments(args)  # コンテナウィンドウ付きの新しいフレームの取得。
+    subwindow = frame.getContainerWindow()  # 新しいコンテナウィンドウを新しいフレームから取得。
     frame.setTitle("New Frame")  # フレームのタイトルを設定。
     docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
     controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
