@@ -25,13 +25,13 @@ def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サ
     addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Label1", "VerticalAlign": BOTTOM})
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
     addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
-#     # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-#     appendFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
-#     appendFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
-#     dialog.setVisible(True)
-    # モダルダイアログ。フレームに追加するとフレームの閉じるボタンで閉じるとエラーになる。
-    dialog.execute()  # モダルダイアログ。
-    dialog.dispose()    
+    # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
+    appendFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
+    appendFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
+    dialog.setVisible(True)
+#     # モダルダイアログ。フレームに追加するとフレームの閉じるボタンで閉じるとエラーになる。
+#     dialog.execute()  # モダルダイアログ。
+#     dialog.dispose()    
 class BtnListener(unohelper.Base, XActionListener):  # ボタンリスナー
     def __init__(self, dialog, dialogwindow):  # dialogwindowはメッセージボックス表示のため。  
         self.dialog = dialog  # ダイアログを取得。
@@ -52,6 +52,9 @@ def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する
         frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
         frame.initialize(containerwindow)  # フレームにウィンドウを入れる。    
         frame.setName(framename)  # フレーム名を設定。
+        
+#         frame.setComponent(containerwindow, None)
+        
         parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。         
     return appendFrame              
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。

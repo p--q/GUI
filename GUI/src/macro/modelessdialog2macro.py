@@ -18,18 +18,18 @@ def macro():
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
     toolkit = docwindow.getToolkit()  # ツールキットを取得。
     taskcreator = smgr.createInstanceWithContext('com.sun.star.frame.TaskCreator', ctx)
-    args = NamedValue("PosSize", Rectangle(150, 150, 200, 200)), NamedValue("FrameName", "NewFrame"), NamedValue("MakeVisible", True)
+    args = NamedValue("PosSize", Rectangle(150, 150, 200, 200)), NamedValue("FrameName", "NewFrame")  # , NamedValue("MakeVisible", True)  # TaskCreatorで作成するフレームのコンテナウィンドウのプロパティ。
     frame = taskcreator.createInstanceWithArguments(args)  # コンテナウィンドウ付きの新しいフレームの取得。
     subwindow = frame.getContainerWindow()  # 新しいコンテナウィンドウを新しいフレームから取得。
     frame.setTitle("New Frame")  # フレームのタイトルを設定。
     docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
-    controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
-    controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールのモデルの集合を作成。
+    controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールコンテナを生成。
+    controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールコンテナのモデルを生成。
     controlcontainermodel.setPropertyValue("BackgroundColor", -1)  # 背景色。-1は何色?
     controlcontainer.setModel(controlcontainermodel)  # コントールコンテナにモデルを設定。
     controlcontainer.createPeer(toolkit, subwindow)  # 新しく作ったウィンドウ内にコントロールコンテナのコントロールをツールキットで描画する。
     controlcontainer.setPosSize(0, 0, 200, 200, POSSIZE)  # コントロールの表示座標を設定。4つ目の引数は前の引数の意味を設定する。
-    frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
+    frame.setComponent(controlcontainer, None)  # コントロールコンテナをフレームにのコンポーネントウィンドウに設定する。今回のコントローラはNone。
     label = createControl(smgr, ctx, "FixedText", 10, 0, 180, 30, ("Label", "VerticalAlign"), ("Label1", BOTTOM))  # 固定文字コントールを作成。
     edit = createControl(smgr, ctx, "Edit", 10, 40, 180, 30, (), ())  # 編集枠コントロールを作成。
     btn = createControl(smgr, ctx, "Button", 110, 130, 80, 35, ("DefaultButton", "Label"), (True, "btn"))  # ボタンコントロールを作成。
@@ -39,9 +39,7 @@ def macro():
     edit.setFocus()  # 編集枠コントロールにフォーカスを設定する。
     btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
     btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
-#     subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。これがなくても表示される。     
-#     subwindow.execute()  # TaskCreatorから得たコンテナウィンドウにはexecute()がない。
-#     subwindow.dispose()
+    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。
 class BtnListener(unohelper.Base, XActionListener):
     def __init__(self, controlcontainer, window):  
         self.controlcontainer = controlcontainer  # コントロールの集合。
