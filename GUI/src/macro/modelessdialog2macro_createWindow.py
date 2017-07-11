@@ -19,6 +19,7 @@ def macro():
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
     toolkit = docwindow.getToolkit()  # ツールキットを取得。
     subwindow =  createWindow(toolkit, docwindow, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する
+    subwindow.setVisible(False)  # 描画中のウィンドウは表示しない。
     frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
     frame.initialize(subwindow)  # フレームにウィンドウを入れる。
 #     frame.setCreator(docframe)  # フレームの親フレームを設定する。
@@ -41,7 +42,7 @@ def macro():
     edit.setFocus()  # 編集枠コントロールにフォーカスを設定する。
     btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
     btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
-#     subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。これがなくても表示される。     
+    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。    
 #     subwindow.execute()  # execute()にするとモダルダイアログになる。
 #     subwindow.dispose()
 class BtnListener(unohelper.Base, XActionListener):

@@ -1,6 +1,5 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-# from com.sun.star.awt.WindowClass import SIMPLE
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
 import unohelper
