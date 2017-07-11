@@ -1,48 +1,77 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-import officehelper
-import traceback
-from functools import wraps
-import sys
-from com.sun.star.beans import PropertyValue
+from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
 import unohelper
 from com.sun.star.awt import XActionListener
+from com.sun.star.util import XCloseListener
+from com.sun.star.view import XSelectionChangeListener
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
-from com.sun.star.awt.PosSize import POSSIZE
 
-
-def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
-    desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-    doc = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, ())
+def macro():
+    ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
+    smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
+    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
-    toolkit = docwindow.getToolkit()  # ツールキットを取得。  
-    dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 150, "PositionY": 150, "Width": 200, "Height": 200, "Title": "New Dialog", "Name": "dialog", "Step": 0, "TabIndex": 0, "Moveable": True})
+    toolkit = docwindow.getToolkit()  # ツールキットを取得。
+    dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 150, "PositionY": 150, "Width": 200, "Height": 200, "Title": "Selection Change", "Name": "dialog", "Step": 0, "TabIndex": 0, "Moveable": True})
     dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。
     dialogwindow = dialog.getPeer()  # ダイアログウィンドウを取得。
-    addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Label1", "VerticalAlign": BOTTOM})
+    addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Selection", "VerticalAlign": BOTTOM})
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
-    addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
-    # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
+    addControl("Button", {"PositionX": 80, "PositionY": 130, "Width": 110, "Height": 35, "DefaultButton": True, "Label": "~Show Selection"}, {"setActionCommand": "Button1", "addActionListener": ButtonListener(dialog, docwindow)})
     createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
-    createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
+    frame = createFrame("DialogFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。  
+    selectionchangelistener = SelectionChangeListener(dialog)
+    removeListeners = listenersRemover(docframe, frame, selectionchangelistener)
+    closelistener = CloseListener(removeListeners)
+    docframe.addCloseListener(closelistener)
+    docframe.getController().addSelectionChangeListener(selectionchangelistener)
+    frame.addCloseListener(closelistener)
     dialog.setVisible(True)  # ダイアログを見えるようにする。
-    # ここで止まるとノンモダルダイアログになる。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-    dialog.execute()  # モダルダイアログにする。
-    dialog.dispose()    
-class BtnListener(unohelper.Base, XActionListener):  # ボタンリスナー
-    def __init__(self, dialog, dialogwindow):  # dialogwindowはメッセージボックス表示のため。  
+def listenersRemover(docframe, frame, selectionchangelistener):    
+    def removeListeners(closelistener):
+        frame.removeCloseListener(closelistener) 
+        docframe.removeCloseListener(closelistener)
+        docframe.getController().removeSelectionChangeListener(selectionchangelistener)   
+    return removeListeners
+class SelectionChangeListener(unohelper.Base, XSelectionChangeListener):
+    def __init__(self, dialog):
+        self.dialog = dialog
+        self.flag = True
+    def selectionChanged(self, eventobject):
+        if self.flag:
+            self.flag = False
+            selection = eventobject.Source.getSelection()
+            if selection.supportsService("com.sun.star.text.TextRanges"):
+                if len(selection)>0:  
+                    rng = selection[0]  
+                    txt = rng.getString()
+                    self.dialog.getControl("Edit1").setText(txt)
+            self.flag = True
+    def disposing(self, eventobject):
+        pass  
+class CloseListener(unohelper.Base, XCloseListener):
+    def __init__(self, removeListeners):
+        self.removeListeners = removeListeners
+    def queryClosing(self, eventobject, getownership):
+        pass
+    def notifyClosing(self, eventobject):
+        self.removeListeners(self)  
+    def disposing(self, eventobject):
+        pass  
+class ButtonListener(unohelper.Base, XActionListener):  # ボタンリスナー
+    def __init__(self, dialog, parentwindow):  # windowはメッセージボックス表示のため。  
         self.dialog = dialog  # ダイアログを取得。
-        self.window = dialogwindow  # ダイアログウィンドウを取得。
+        self.parentwindow = parentwindow  # ダイアログウィンドウを取得。
     def actionPerformed(self, actionevent):
         cmd = actionevent.ActionCommand  # アクションコマンドを取得。
         edit = self.dialog.getControl("Edit1")  # editという名前のコントロールを取得。
-        if cmd == "btn":  # アクションコマンドがbtnのとき
-            edit.setText("By Button Click")  # editコントロールに文字列を代入。
-            toolkit = self.window.getToolkit()  # ツールキットを取得。
-            msgbox = toolkit.createMessageBox(self.window, INFOBOX, BUTTONS_OK, "Text Field", "{}".format(edit.getText()))  # self.windowを親ウィンドウにしてメッセージボックスを作成。
+        if cmd == "Button1":  # 開くアクションコマンドがButton1のとき
+            toolkit = self.parentwindow.getToolkit()  # ツールキットを取得。
+            msgbox = toolkit.createMessageBox(self.parentwindow, INFOBOX, BUTTONS_OK, "Text Field", "{}".format(edit.getText()))  # self.windowを親ウィンドウにしてメッセージボックスを作成。
             msgbox.execute()  # メッセージボックスを表示。
             msgbox.dispose()  # メッセージボックスを破棄。
     def disposing(self, eventobject):
@@ -54,7 +83,7 @@ def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する
         frame.setName(framename)  # フレーム名を設定。
         parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
         return frame        
-    return createFrame               
+    return createFrame              
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
     dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
     dialog.setPosSize(dialogprops.pop("PositionX"), dialogprops.pop("PositionY"), dialogprops.pop("Width"), dialogprops.pop("Height"), POSSIZE)  # ダイアログモデルのプロパティで設定すると単位がMapAppになってしまうのでコントロールに設定。
@@ -91,41 +120,4 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
             i += 1
         return name  
     return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。
-# funcの前後でOffice接続の処理
-def connectOffice(func):
-    @wraps(func)
-    def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
-        ctx = None
-        try:
-            ctx = officehelper.bootstrap()  # コンポーネントコンテクストの取得。
-        except:
-            pass
-        if not ctx:
-            print("Could not establish a connection with a running office.")
-            sys.exit()
-        print("Connected to a running office ...")
-        smgr = ctx.getServiceManager()  # サービスマネジャーの取得。
-        print("Using {} {}".format(*_getLOVersion(ctx, smgr)))  # LibreOfficeのバージョンを出力。
-        try:
-            func(ctx, smgr)  # 引数の関数の実行。
-        except:
-            traceback.print_exc()
-#         _terminateOffice(ctx, smgr) # soffice.binの終了処理。
-    def _terminateOffice(ctx, smgr):  # soffice.binの終了処理。
-        desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
-        prop = PropertyValue(Name="Hidden", Value=True)
-        desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
-        terminated = desktop.terminate()  # LibreOfficeをデスクトップに展開していない時はエラーになる。
-        if terminated:
-            print("\nThe Office has been terminated.")  # 未保存のドキュメントがないとき。
-        else:
-            print("\nThe Office is still running. Someone else prevents termination.")  # 未保存のドキュメントがあってキャンセルボタンが押された時。
-    def _getLOVersion(ctx, smgr):  # LibreOfficeの名前とバージョンを返す。
-        cp = smgr.createInstanceWithContext('com.sun.star.configuration.ConfigurationProvider', ctx)
-        node = PropertyValue(Name = 'nodepath', Value = 'org.openoffice.Setup/Product' )  # share/registry/main.xcd内のノードパス。
-        ca = cp.createInstanceWithArguments('com.sun.star.configuration.ConfigurationAccess', (node,))
-        return ca.getPropertyValues(('ooName', 'ooSetupVersion'))  # LibreOfficeの名前とバージョンをタプルで返す。
-    return wrapper
-if __name__ == "__main__":
-    main = connectOffice(main)
-    main()
+g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
