@@ -1,6 +1,8 @@
 eclipse.preferences.version=1
 encoding//src/dialogdocument.py=utf-8
-encoding//src/macro/modelessdialog2macro.py=utf-8
+encoding//src/macro/modelessdialog2macro_createWindow.py=utf-8
+encoding//src/macro/modelessdialog2macro_taskcreator.py=utf-8
+encoding//src/macro/modelessdialog2macro_unocontroldialog.py=utf-8
 encoding//src/macro/modelessdialog3macro.py=utf-8
 encoding//src/messagebox.py=utf-8
 encoding//src/modelessdialog2.py=utf-8
