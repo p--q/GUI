@@ -113,8 +113,8 @@ if __name__ == "__main__":  # オートメーションで実行するとき
                 return self.getDesktop().getCurrentComponent()
         return ScriptContext(ctx)  
     XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
-    doc = XSCRIPTCONTEXT.getDocument()
-    if doc is None:  # すでに開いているドキュメントがないとき
+    doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
+    if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
         XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
         while doc is None:  # ドキュメントのロード待ち。
             doc = XSCRIPTCONTEXT.getDocument()
