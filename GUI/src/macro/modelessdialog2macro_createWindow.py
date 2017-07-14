@@ -35,13 +35,13 @@ def macro():
     btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
     btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
     # モードレスダイアログの時
-    createFrame = frameCreator(ctx, smgr, docframe)
-    frame = createFrame("NewFrame", subwindow)
-    frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
-    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。execute()するときは不要。   
+#     createFrame = frameCreator(ctx, smgr, docframe)
+#     frame = createFrame("NewFrame", subwindow)
+#     frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
+#     subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。execute()するときは不要。   
     # モダルダイアルの時
-#     subwindow.execute()  # execute()にするとモダルダイアログになる。
-#     subwindow.dispose()
+    subwindow.execute()  # execute()にするとモダルダイアログになる。
+    subwindow.dispose()
 class BtnListener(unohelper.Base, XActionListener):
     def __init__(self, controlcontainer, window):  
         self.controlcontainer = controlcontainer  # コントロールの集合。

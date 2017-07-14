@@ -30,7 +30,8 @@ def macro():
     spl.addMouseMotionListener(mouse_motion(controlcontainer))
     # モードレスダイアグにするｔき
     createFrame = frameCreator(ctx, smgr, docframe)
-    createFrame("newFrame", subwindow)
+    frame = createFrame("newFrame", subwindow)
+    frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
     subwindow.setVisible(True)
     # モダルダイアログにするとき
 #     subwindow.execute()
