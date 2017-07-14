@@ -7,8 +7,6 @@ from com.sun.star.awt import XActionListener
 from com.sun.star.awt import Rectangle
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
-from com.sun.star.beans import NamedValue
-from com.sun.star.util import XCloseListener
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
