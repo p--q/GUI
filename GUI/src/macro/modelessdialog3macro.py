@@ -23,13 +23,13 @@ def macro():
     addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Selection", "VerticalAlign": BOTTOM})
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
     addControl("Button", {"PositionX": 80, "PositionY": 130, "Width": 110, "Height": 35, "DefaultButton": True, "Label": "~Show Selection"}, {"setActionCommand": "Button1", "addActionListener": ButtonListener(dialog, docwindow)})
-    createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
-    frame = createFrame("DialogFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。  
+    createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。 
     selectionchangelistener = SelectionChangeListener(dialog)
+    docframe.getController().addSelectionChangeListener(selectionchangelistener)
+    frame = createFrame("DialogFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。 
     removeListeners = listenersRemover(docframe, frame, selectionchangelistener)
     closelistener = CloseListener(removeListeners)
     docframe.addCloseListener(closelistener)
-    docframe.getController().addSelectionChangeListener(selectionchangelistener)
     frame.addCloseListener(closelistener)
     dialog.setVisible(True)  # ダイアログを見えるようにする。
 def listenersRemover(docframe, frame, selectionchangelistener):    
