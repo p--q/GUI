@@ -1,5 +1,6 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
+import uno  # オートメーションのときのみ必要。
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
 import unohelper
@@ -121,3 +122,51 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         return name  
     return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
+
+if __name__ == "__main__":  # オートメーションで実行するとき
+    import officehelper
+    import traceback
+    from functools import wraps
+    import sys
+    from com.sun.star.beans import PropertyValue
+    from com.sun.star.script.provider import XScriptContext  
+    def connectOffice(func):  # funcの前後でOffice接続の処理
+        @wraps(func)
+        def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
+            try:
+                ctx = officehelper.bootstrap()  # コンポーネントコンテクストの取得。
+            except:
+                print("Could not establish a connection with a running office.")
+                sys.exit()
+            print("Connected to a running office ...")
+            smgr = ctx.getServiceManager()  # サービスマネジャーの取得。
+            print("Using {} {}".format(*_getLOVersion(ctx, smgr)))  # LibreOfficeのバージョンを出力。
+            try:
+                return func(ctx, smgr)  # 引数の関数の実行。
+            except:
+                traceback.print_exc()
+        def _getLOVersion(ctx, smgr):  # LibreOfficeの名前とバージョンを返す。
+            cp = smgr.createInstanceWithContext('com.sun.star.configuration.ConfigurationProvider', ctx)
+            node = PropertyValue(Name = 'nodepath', Value = 'org.openoffice.Setup/Product' )  # share/registry/main.xcd内のノードパス。
+            ca = cp.createInstanceWithArguments('com.sun.star.configuration.ConfigurationAccess', (node,))
+            return ca.getPropertyValues(('ooName', 'ooSetupVersion'))  # LibreOfficeの名前とバージョンをタプルで返す。
+        return wrapper
+    @connectOffice  # mainの引数にctxとsmgrを渡すデコレータ。
+    def main(ctx, smgr):  # XSCRIPTCONTEXTを生成。
+        class ScriptContext(unohelper.Base, XScriptContext):
+            def __init__(self, ctx):
+                self.ctx = ctx
+            def getComponentContext(self):
+                return self.ctx
+            def getDesktop(self):
+                return self.ctx.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
+            def getDocument(self):
+                return self.getDesktop().getCurrentComponent()
+        return ScriptContext(ctx)  
+    XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
+    doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
+    if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
+        XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
+        while doc is None:  # ドキュメントのロード待ち。
+            doc = XSCRIPTCONTEXT.getDocument()
+    macro()

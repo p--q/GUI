@@ -1,9 +1,8 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-import uno  # オートメーションのときのみ必要。
+import unohelper
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
-import unohelper
 from com.sun.star.awt import XActionListener
 from com.sun.star.awt import Rectangle
 from com.sun.star.awt.MessageBoxType import INFOBOX
@@ -39,7 +38,7 @@ def macro():
     edit.setFocus()  # 編集枠コントロールにフォーカスを設定する。
     btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
     btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
-    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。
+    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。execute()メソッドはないのでノンモダルダイアログにはできない。
 class BtnListener(unohelper.Base, XActionListener):
     def __init__(self, controlcontainer, window):  
         self.controlcontainer = controlcontainer  # コントロールの集合。

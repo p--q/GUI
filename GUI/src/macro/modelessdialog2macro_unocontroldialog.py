@@ -1,14 +1,14 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-import uno  # オートメーションのときのみ必要。
+import unohelper
 from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.style.VerticalAlignment import BOTTOM
-import unohelper
 from com.sun.star.awt import XActionListener
 from com.sun.star.awt import Rectangle
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 from com.sun.star.beans import NamedValue
+from com.sun.star.util import XCloseListener
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
@@ -23,11 +23,11 @@ def macro():
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
     addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
     # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-    createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
-    createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
-    dialog.setVisible(True)  # ダイアログを見えるようにする。
-    # ここで止まるとノンモダルダイアログになる。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-    dialog.execute()  # モダルダイアログにする。
+#     createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
+#     createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
+#     dialog.setVisible(True)  # ダイアログを見えるようにする。
+    # モダルダイアログにする。フレームに追加するとエラーになる。
+    dialog.execute()  
     dialog.dispose()    
 class BtnListener(unohelper.Base, XActionListener):  # ボタンリスナー
     def __init__(self, dialog, dialogwindow):  # dialogwindowはメッセージボックス表示のため。  
@@ -89,9 +89,9 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         return name  
     return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
-
-
 if __name__ == "__main__":  # オートメーションで実行するとき
+    MODE = "Automation"
+#     MODE = "Macro"
     import officehelper
     import traceback
     from functools import wraps

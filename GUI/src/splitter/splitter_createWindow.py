@@ -1,69 +1,67 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
 import unohelper
-from com.sun.star.awt.WindowClass import SIMPLE
-from com.sun.star.awt.PosSize import POSSIZE
-from com.sun.star.style.VerticalAlignment import BOTTOM
-from com.sun.star.awt import XActionListener
+from com.sun.star.awt import XMouseMotionListener
+from com.sun.star.awt.MouseButton import LEFT
+from com.sun.star.awt.PosSize import POSSIZE, Y, HEIGHT
 from com.sun.star.awt.WindowAttribute import  CLOSEABLE, SHOW, MOVEABLE, BORDER
-from com.sun.star.awt import WindowDescriptor
+from com.sun.star.awt.WindowClass import SIMPLE
 from com.sun.star.awt import Rectangle
-from com.sun.star.awt.MessageBoxType import INFOBOX
-from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
+from com.sun.star.awt import WindowDescriptor
+
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。 
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
-    docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
-    toolkit = docwindow.getToolkit()  # ツールキットを取得。
-    subwindow =  createWindow(toolkit, docwindow, "dialog", SHOW + BORDER + MOVEABLE + CLOSEABLE, 150, 150, 200, 200)  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する。3番目の引数サービス名はcom.sun.star.awt.WindowDescriptorで定義されている。
-    subwindow.setVisible(False)  # 描画中のウィンドウは表示しない。
-    controlcontainer = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールの集合を作成。
-    controlcontainermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コントールのモデルの集合を作成。
-    controlcontainermodel.setPropertyValue("BackgroundColor", -1)  # 背景色。-1は何色?
-    controlcontainer.setModel(controlcontainermodel)  # コントールコンテナにモデルを設定。
-    controlcontainer.createPeer(toolkit, subwindow)  # 新しく作ったウィンドウ内にコントロールコンテナのコントロールをツールキットで描画する。
-    controlcontainer.setPosSize(0, 0, 200, 200, POSSIZE)  # コントロールの表示座標を設定。4つ目の引数は前の引数の意味を設定する。
-    label = createControl(smgr, ctx, "FixedText", 10, 0, 180, 30, ("Label", "VerticalAlign"), ("Label1", BOTTOM))  # 固定文字コントールを作成。
-    edit = createControl(smgr, ctx, "Edit", 10, 40, 180, 30, (), ())  # 編集枠コントロールを作成。
-    btn = createControl(smgr, ctx, "Button", 110, 130, 80, 35, ("DefaultButton", "Label"), (True, "btn"))  # ボタンコントロールを作成。
-    controlcontainer.addControl("label", label)  # コントロールコンテナにコントロールを名前を設定して追加。
-    controlcontainer.addControl("btn", btn)  # コントロールコンテナにコントロールを名前を設定して追加。
-    controlcontainer.addControl("edit", edit)  # コントロールコンテナにコントロールを名前を設定して追加。
-    edit.setFocus()  # 編集枠コントロールにフォーカスを設定する。
-    btn.setActionCommand("btn")  # ボタンを起動した時のコマンド名を設定する。
-    btn.addActionListener(BtnListener(controlcontainer, subwindow))  # ボタンにリスナーを設定。コントロールの集合を渡しておく。
-    # モードレスダイアログの時
+    docwindow = docframe.getContainerWindow()
+    toolkit = docwindow.getToolkit()
+    subwindow = createWindow(toolkit, docwindow, "modaldialog", BORDER + MOVEABLE + CLOSEABLE, 100, 100, 300, 200)
+    controlcontainer = createControl(smgr, ctx, "Container", 0, 0, 300, 200, (), ())
+    controlcontainer.setPosSize(0, 0, 300, 200, POSSIZE)
+    controlcontainer.createPeer(toolkit, subwindow)
+    edit1 = createControl(smgr, ctx, "Edit", 0, 0, 300, 99, ("AutoVScroll", "MultiLine",), (True, True,))
+    edit2 = createControl(smgr, ctx, "Edit", 0, 105, 300, 96, ("AutoVScroll", "MultiLine",), (True, True,))
+    controlcontainer.addControl("edit1",edit1)
+    controlcontainer.addControl("edit2",edit2)
+    spl = createWindow(toolkit, controlcontainer.getPeer(), "splitter", SHOW + BORDER, 0, 100, 300, 5)  # コントロールコンテナの上にさらにウィンドウを作成する。
+    spl.setProperty("BackgroundColor", 0xEEEEEE)
+    spl.setProperty("Border",1)
+    spl.addMouseMotionListener(mouse_motion(controlcontainer))
+    # モードレスダイアグにするｔき
     createFrame = frameCreator(ctx, smgr, docframe)
-    frame = createFrame("NewFrame", subwindow)
-    frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。
-    subwindow.setVisible(True)  # 新しく作ったウィンドウを見えるようにする。execute()するときは不要。   
-    # モダルダイアルの時
-#     subwindow.execute()  # execute()にするとモダルダイアログになる。
+    createFrame("newFrame", subwindow)
+    subwindow.setVisible(True)
+    # モダルダイアログにするとき
+#     subwindow.execute()
+#     spl.dispose()
 #     subwindow.dispose()
-class BtnListener(unohelper.Base, XActionListener):
-    def __init__(self, controlcontainer, window):  
-        self.controlcontainer = controlcontainer  # コントロールの集合。
-        self.window = window  # コントロールのあるウィンドウ。
-    def actionPerformed(self, actionevent):
-        cmd = actionevent.ActionCommand  # アクションコマンドを取得。
-        editcontrol = self.controlcontainer.getControl("edit")  # editという名前のコントロールを取得。
-        if cmd == "btn":  # アクションコマンドがbtnのとき
-            editcontrol.setText("By Button Click")  # editコントロールに文字列を代入。
-            toolkit = self.window.getToolkit()
-            msgbox = toolkit.createMessageBox(self.window, INFOBOX, BUTTONS_OK, "Text Field", "{}".format(editcontrol.getText()))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
-            msgbox.execute()  # メッセージボックスを表示。
-            msgbox.dispose()  # メッセージボックスを破棄。
-    def disposing(self, eventobject):
+class mouse_motion(unohelper.Base, XMouseMotionListener):
+    def __init__(self,controlcontainer):
+        self.controlcontainer = controlcontainer
+        self.edit1 = self.controlcontainer.getControl("edit1")
+        self.edit2 = self.controlcontainer.getControl("edit2")
+    def disposing(self,ev):
         pass
+    def mouseMoved(self,ev):
+        pass
+    def mouseDragged(self,ev):
+        if ev.Buttons ==  LEFT:
+            split_pos = ev.Source.getPosSize()
+            if 5 < split_pos.Y + ev.Y < 200:
+                ev.Source.setPosSize(0, split_pos.Y + ev.Y, 0, 0, Y)
+                edit1_pos = self.edit1.getPosSize()
+                edit2_pos = self.edit2.getPosSize()
+                self.edit1.setPosSize(0, 0, 0, edit1_pos.Height + ev.Y, HEIGHT)
+                self.edit2.setPosSize(0, edit2_pos.Y + ev.Y, 0,edit2_pos.Height - ev.Y, Y + HEIGHT)
 def createWindow(toolkit, parent, service, attr, nX, nY, nWidth, nHeight):
     aRect = Rectangle(X=nX, Y=nY, Width=nWidth, Height=nHeight)
     d = WindowDescriptor(Type=SIMPLE, WindowServiceName=service, ParentIndex=-1, Bounds=aRect, Parent=parent, WindowAttributes=attr)
     return toolkit.createWindow(d)
+# create control by its type with property values
 def createControl(smgr, ctx, ctype, x, y, width, height, names, values):
-    ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(ctype), ctx)
-    ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(ctype), ctx)
+    ctrl = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%s" % ctype, ctx)
+    ctrl_model = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl%sModel" % ctype, ctx)
     ctrl_model.setPropertyValues(names, values)
     ctrl.setModel(ctrl_model)
     ctrl.setPosSize(x, y, width, height, POSSIZE)
