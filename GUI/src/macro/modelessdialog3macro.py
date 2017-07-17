@@ -97,7 +97,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         control.setPosSize(props.pop("PositionX"), props.pop("PositionY"), props.pop("Width"), props.pop("Height"), POSSIZE)  # ピクセルで指定するために位置座標と大きさだけコントロールで設定。
         if not "Name" in props:
             props["Name"] = _generateSequentialName(controltype)  # Nameがpropsになければ通し番号名を生成。
-        controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。
+        controlmodel = dialogmodel.createInstance("com.sun.star.awt.UnoControl{}Model".format(controltype))  # コントロールモデルを生成。UnoControlDialogElementサービスのためにUnoControlDialogModelからの作成が必要。
         values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
         if any(map(isinstance, values, [tuple]*len(values))):
             [setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
