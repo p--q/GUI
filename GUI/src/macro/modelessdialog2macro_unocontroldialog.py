@@ -17,7 +17,7 @@ def macro():
     dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 150, "PositionY": 150, "Width": 200, "Height": 200, "Title": "New Dialog", "Name": "dialog", "Step": 0, "TabIndex": 0, "Moveable": True})
     dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。
     dialogwindow = dialog.getPeer()  # ダイアログウィンドウを取得。
-    addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Label1", "VerticalAlign": BOTTOM})
+    addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "Label1", "NoLabel": True, "VerticalAlign": BOTTOM})
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
     addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
     # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
