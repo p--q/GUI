@@ -26,7 +26,7 @@ def macro():
     createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。 
     selectionchangelistener = SelectionChangeListener(dialog)
     docframe.getController().addSelectionChangeListener(selectionchangelistener)
-    frame = createFrame("DialogFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。 
+    frame = createFrame(dialog.Model.Name, dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。 
     removeListeners = listenersRemover(docframe, frame, selectionchangelistener)
     closelistener = CloseListener(removeListeners)
     docframe.addCloseListener(closelistener)
