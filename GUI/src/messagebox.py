@@ -7,94 +7,24 @@ import sys
 from com.sun.star.beans import PropertyValue
 from com.sun.star.awt.MessageBoxType import ERRORBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
-from com.sun.star.util import CloseVetoException
-from com.sun.star.uno import Exception
-from com.sun.star.lang import IllegalArgumentException
+from contextlib import contextmanager
+
 def main(ctx, smgr):  # ctx: コンポーネントコンテクスト、smgr: サービスマネジャー
-    model = None
-    try:
-        messagebox = MessageBox(ctx, smgr)
-        model = messagebox.createDefaultTextDocument()
-        peer = messagebox.getWindowPeerOfFrame(model)
-        if peer is not None:
-            bishighcontrast = messagebox.isHighContrastModeActivated(peer)
-            messagebox.showErrorMessageBox(peer, "My Sampletitle", "HighContrastMode is enabled: {}".format(bishighcontrast))
-        else:
-            print("Could not retrieve current frame")
-    except Exception as e:
-        print(e + e.getMessage())
-        traceback.print_exc()
-    finally:
-        if model is not None:
-            try:
-                if hasattr(model, "close"):
-                    model.close(False)
-                else:
-                    model.dispose()
-            except CloseVetoException as e:
-                print(e + e.getMessage())
-                traceback.print_exc()
-class MessageBox:
-    def __init__(self, ctx, smgr):
-        self.ctx = ctx
-        self.smgr = smgr
-    def getWindowPeerOfFrame(self, model):
-        try:
-            frame = None
-            if model is not None:
-                frame = model.getCurrentController().getFrame()
-            else:
-                desktop = self.smgr.createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
-                frame = desktop.getActiveFrame()
-            if frame is not None:
-                return frame.getContainerWindow()
-        except Exception:  
-            traceback.print_exc()
-        return None
-    def createDefaultTextDocument(self):
-        model = None
-        try:
-            desktop = self.smgr.createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
-            prop = PropertyValue(Name="Hidden", Value=True)
-            model = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))
-        except Exception:
-            traceback.print_exc()
-        return model
-    def showErrorMessageBox(self, parentwindowpeer, title, message):
-        try:
-            toolkit = self.smgr.createInstanceWithContext("com.sun.star.awt.Toolkit", self.ctx)
-            messagebox = toolkit.createMessageBox(parentwindowpeer, ERRORBOX, BUTTONS_OK, title, message)
-            if messagebox is not None:
-                messagebox.execute()
-        except Exception:
-            traceback.print_exc()
-        finally:
-            if messagebox is not None:
-                messagebox.dispose()
-    def isHighContrastModeActivated(self, vclwindowpeer):
-        bisactivated = False
-        try:
-            if vclwindowpeer is not None:
-                color = vclwindowpeer.getProperty("DisplayBackgroundColor")
-                red = self.getRedColorShare(color)
-                green = self.getGreenColorShare(color)
-                blue = self.getBlueColorShare(color)
-                luminance = (blue*28 + green*151 + red*77 ) / 256
-                bisactivated = (luminance <= 25)
-                return bisactivated
-            else:
-                return False
-        except IllegalArgumentException:
-            traceback.print_exc()
-        return bisactivated
-    def getRedColorShare(self, color):
-        return int(color/65536)
-    def getGreenColorShare(self, color):
-        redmodulo = color%65536
-        return int(redmodulo/256)
-    def getBlueColorShare(self, color):
-        redmodulo = color%65536
-        return redmodulo%256
+    desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)  # コンポーネントコンテクストからデスクトップをインスタンス化。
+    with loadmodel(desktop) as model:  # Wirterドキュメントを隠し属性で開いてモデルを取得。処理が終了したらモデルを閉じる。
+        peer = model.getCurrentController().getFrame().getContainerWindow()  # モデルからコントローラを取得して、コントローラからフレームを取得して、フレームからコンテナウィンドウ=ピアオブジェクトを取得。
+        bishighcontrast = False  # メッセージボックスに表示させる文字列にする。
+        msgbox = peer.getToolkit().createMessageBox(peer, ERRORBOX, BUTTONS_OK, "My Sampletitle", "HighContrastMode is enabled: {}".format(bishighcontrast))  # ピアオブジェクトからツールキットを取得して、peerを親ウィンドウにしてメッセージボックスを作成。
+        msgbox.execute()  # メッセージボックスを表示。
+        msgbox.dispose()  # メッセージボックスを破棄。
+@contextmanager  # コンテクストマネージャーを作成。
+def loadmodel(desktop):
+    prop = PropertyValue(Name="Hidden", Value=True)  # 隠し属性を設定。
+    model = desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,)) # 新規Writerドキュメントを新しいフレームに開く。
+    yield model
+    model.close(True)  # モデルを閉じる。
+
+
 # funcの前後でOffice接続の処理
 def connectOffice(func):
     @wraps(func)
@@ -117,7 +47,7 @@ def connectOffice(func):
             func(ctx, smgr)  # 引数の関数の実行。
         except:
             traceback.print_exc()
-        # soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。
+#         soffice.binの終了処理。これをしないとLibreOfficeを起動できなくなる。
         desktop = smgr.createInstanceWithContext("com.sun.star.frame.Desktop", ctx)
         prop = PropertyValue(Name="Hidden", Value=True)
         desktop.loadComponentFromURL("private:factory/swriter", "_blank", 0, (prop,))  # バックグラウンドでWriterのドキュメントを開く。
