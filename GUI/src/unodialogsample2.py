@@ -35,17 +35,17 @@ def macro():
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
     toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
-    controlmargin = 6
-    dialogwidth, dialogheight = 250, 140
-    roadmapwidth = 80
-    buttonwidth, buttonheight = 50, 14
-    buttonposx = int(dialogwidth/2 - buttonwidth/2)  # 整数に変換が必要。
-    buttonposy = dialogheight - buttonheight - controlmargin
-    controlposx = roadmapwidth + 2*controlmargin
-    controlwidth = dialogwidth - 3*controlmargin - roadmapwidth
-    listboxheight = dialogheight - 4*controlmargin - buttonheight 
+    controlmargin = 6  # ロードマップコントロール以外のコントロールのマージン。
+    dialogwidth, dialogheight = 250, 140  # ダイアログの幅と高さ
+    roadmapwidth = 80  # ロードマップの幅。
+    buttonwidth, buttonheight = 50, 14  # ボタンコントロールの幅と高さ。
+    buttonposx = int(dialogwidth/2 - buttonwidth/2)  # 整数に変換が必要。ボタンの位置をダイアログの中央にもってくる。
+    buttonposy = dialogheight - buttonheight - controlmargin  # ボタンのY座標。下縁からcontrolmarginの位置にする。
+    controlposx = roadmapwidth + controlmargin  # Stepで切り替えるコントロールのX座標。ロードマップの右縁からcontrolmarginを確保。
+    controlwidth = dialogwidth - 2*controlmargin - roadmapwidth  # Stepで切り替えるコントロールの幅。左右にcontrolmarginを確保。
+    listboxheight = dialogheight - 4*controlmargin - buttonheight  # リストボックスの高さ。ボタンのcontrolmarginも引く。
     dialog, addControl = dialogCreator(ctx, smgr, {"Name": "Dialog1", "PositionX": 102, "PositionY": 41, "Width": dialogwidth, "Height": dialogheight, "Title": "Inspect a Uno-Object", "Moveable": True, "TabIndex": 0, "Step": 1})  # UnoControlDialogを生成、とそれにコントロールを使いする関数addControl。
-    linecount, fixedtextheight = 4, 8
+    linecount, fixedtextheight = 4, 8  # FixedTextの行数、1行の高さ。
     label = "This Dialog lists information about a given Uno-Object.\nIt offers a view to inspect all suppported servicenames, exported interfaces, methods and properties."
     addControl("FixedText", {"PositionX": controlposx, "PositionY": 27, "Width": controlwidth, "Height": fixedtextheight*linecount, "Label": label, "NoLabel": True, "Step": 1, "MultiLine": True})
     introspection = smgr.createInstanceWithContext("com.sun.star.beans.Introspection", ctx)
@@ -59,14 +59,14 @@ def macro():
     addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 4, "StringItemList": methodnames})     
     addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 5, "StringItemList": propertynames})     
     addControl("Button", {"PositionX": buttonposx, "PositionY": buttonposy, "Width": buttonwidth, "Height": buttonheight, "Label": "~Close", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
-    addControl("FixedLine", {"PositionX": 0, "PositionY": buttonposy - controlmargin - 4, "Width": dialogwidth, "Height": 8, "Orientation": 0}) 
+    addControl("FixedLine", {"PositionX": 0, "PositionY": buttonposy - controlmargin - 4, "Width": dialogwidth, "Height": 8, "Orientation": 0})  # 水平線の高さをロードマップの下縁の半分に食い込ませる。
     dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。Stepを使うときはRoadmap以外のコントロールが追加された後にピアを作成しないとStepが重なって表示される。
     items = ("Introduction", True),\
             ("Supported Services", True),\
             ("Interfaces", True),\
             ("Methods", True),\
             ("Properties", True)  # この順に0からIDがふられる。この順に表示される。
-    addControl("Roadmap", {"PositionX": 0, "PositionY": 0, "Width": 85, "Height": dialogheight - 26, "Complete": True, "CurrentItemID": 0, "Text": "Steps", "Items": items}, {"addItemListener": ItemListener(dialog)})  # Roadmapコントロールはダイアログウィンドウを描画してからでないと項目が表示されない。
+    addControl("Roadmap", {"PositionX": 0, "PositionY": 0, "Width": roadmapwidth, "Height": dialogheight - buttonheight - 2*controlmargin, "Complete": True, "CurrentItemID": 0, "Text": "Steps", "Items": items}, {"addItemListener": ItemListener(dialog)})  # Roadmapコントロールはダイアログウィンドウを描画してからでないと項目が表示されない。
     # ノンモダルダイアログにするとき。オートメーションではリスナーが動かない。
 #     showModelessly(ctx, smgr, docframe, dialog)  
     # モダルダイアログにする。フレームに追加するとエラーになる。
@@ -107,11 +107,11 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
     dialog.setVisible(False)  # 描画中のものを表示しない。
     def addControl(controltype, props, attrs=None):  # props: コントロールモデルのプロパティ、attr: コントロールの属性。
         items, currentitemid = None, None
-        if controltype == "Roadmap":  # Roadmapコントロールの
+        if controltype == "Roadmap":  # Roadmapコントロールのとき、Itemsはダイアログモデルに追加してから設定する。そのときはCurrentItemIDもあとで設定する。
             if "Items" in props:  # Itemsはダイアログモデルに追加されてから設定する。
                 items = props.pop("Items")
-            if "CurrentItemID" in props:  # CurrentItemIDはItemsを追加されてから設定する。
-                currentitemid = props.pop("CurrentItemID")
+                if "CurrentItemID" in props:  # CurrentItemIDはItemsを追加されてから設定する。
+                    currentitemid = props.pop("CurrentItemID")
         if "PosSize" in props:  # コントロールモデルのプロパティの辞書にPosSizeキーがあるときはピクセル単位でコントロールに設定をする。
             control = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(controltype), ctx)  # コントロールを生成。
             control.setPosSize(props.pop("PositionX"), props.pop("PositionY"), props.pop("Width"), props.pop("Height"), props.pop("PosSize"))  # ピクセルで指定するために位置座標と大きさだけコントロールで設定。
@@ -126,8 +126,8 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
                 item = controlmodel.createInstance()
                 item.setPropertyValues(("Label", "Enabled"), j)
                 controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される       
-        if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
-            controlmodel.setPropertyValue("CurrentItemID", currentitemid)
+            if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
+                controlmodel.setPropertyValue("CurrentItemID", currentitemid)
         if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
             control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
             for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
