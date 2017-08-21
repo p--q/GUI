@@ -72,7 +72,11 @@ def macro():
             ("Methods", True),\
             ("Properties", True)  # この順に0からIDがふられる。この順に表示される。
     addControl("Roadmap", {"PositionX": 0, "PositionY": 0, "Width": roadmapwidth, "Height": dialogheight - buttonheight - 2*controlmargin, "Complete": True, "CurrentItemID": 0, "Text": "Steps", "Items": items}, {"addItemListener": ItemListener(dialog)})  # Roadmapコントロールはダイアログウィンドウを描画してからでないと項目が表示されない。
+<<<<<<< HEAD
     # ノンモダルダイアログにするとき。オートメーションではリスナーが動かない。
+=======
+    # ノンモダルダイアログにするとき。オートメーションでは動かないリスナーがある。
+>>>>>>> refs/heads/feature/201707171853model
 #     showModelessly(ctx, smgr, docframe, dialog)  
     # モダルダイアログにする。フレームに追加するとエラーになる。
     dialog.execute()  
