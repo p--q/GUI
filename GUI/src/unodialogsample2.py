@@ -126,7 +126,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         else:  # Map AppFont (ma)のときはダイアログモデルにモデルを追加しないと正しくピクセルに変換されない。
             controlmodel = _createControlModel(controltype, props)  # コントロールモデルの生成。
             dialogmodel.insertByName(props["Name"], controlmodel)  # ダイアログモデルにモデルを追加するだけでコントロールも作成される。
-        if items is not None:  # コントロールに追加されたRoadmapモデルにRoadmapアイテムは追加できない。
+        if items is not None:  # コントロールに追加されたRoadmapモデルにしかRoadmapアイテムは追加できない。
             for i, j in enumerate(items):  # 各Roadmapアイテムについて
                 item = controlmodel.createInstance()
                 item.setPropertyValues(("Label", "Enabled"), j)
