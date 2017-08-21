@@ -8,25 +8,25 @@ from com.sun.star.awt import Rectangle
 from com.sun.star.awt.MessageBoxType import INFOBOX
 from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 def macro():
-    ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
-    smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
-    docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
-    docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
-    toolkit = docwindow.getToolkit()  # ツールキットを取得。  
-    dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 150, "PositionY": 150, "Width": 200, "Height": 200, "Title": "New Dialog", "Name": "dialog", "Step": 0, "TabIndex": 0, "Moveable": True})
-    dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。
-    dialogwindow = dialog.getPeer()  # ダイアログウィンドウを取得。
-    addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "Label1", "NoLabel": True, "VerticalAlign": BOTTOM})
-    addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
-    addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
-    # ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-#     createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
-#     createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
-#     dialog.setVisible(True)  # ダイアログを見えるようにする。
-    # モダルダイアログにする。フレームに追加するとエラーになる。
-    dialog.execute()  
-    dialog.dispose()    
+	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
+	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
+	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
+	toolkit = docwindow.getToolkit()  # ツールキットを取得。  
+	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 150, "PositionY": 150, "Width": 200, "Height": 200, "Title": "New Dialog", "Name": "dialog", "Step": 0, "TabIndex": 0, "Moveable": True})
+	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。
+	dialogwindow = dialog.getPeer()  # ダイアログウィンドウを取得。
+	addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "Label1", "NoLabel": True, "VerticalAlign": BOTTOM})
+	addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
+	addControl("Button", {"PositionX": 110, "PositionY": 130, "Width": 80, "Height": 35, "DefaultButton": True, "Label": "~btn"}, {"setActionCommand": "btn", "addActionListener": BtnListener(dialog, dialogwindow)})
+	# ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
+# 	createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
+# 	createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
+# 	dialog.setVisible(True)  # ダイアログを見えるようにする。
+	# モダルダイアログにする。フレームに追加するとエラーになる。
+	dialog.execute()  
+	dialog.dispose()	
 class BtnListener(unohelper.Base, XActionListener):  # ボタンリスナー
     def __init__(self, dialog, dialogwindow):  # dialogwindowはメッセージボックス表示のため。  
         self.dialog = dialog  # ダイアログを取得。
