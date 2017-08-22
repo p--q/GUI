@@ -9,14 +9,18 @@ from com.sun.star.awt.MenuItemStyle import AUTOCHECK, CHECKABLE, RADIOCHECK
 from com.sun.star.awt import XMenuListener
 from com.sun.star.util import XCloseListener
 def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
-    if __name__ == "__main__":  # オートメーションのときはデバッグサーバーに接続しない。
-        return func
     def wrapper(*args, **kwargs):
-        import time
         import pydevd
+        frame = None
         doc = XSCRIPTCONTEXT.getDocument()
         if doc:  # ドキュメントが取得できた時
-            indicator = doc.getCurrentController().getFrame().createStatusIndicator()  # フレームからステータスバーを取得する。
+            frame = doc.getCurrentController().getFrame()  # ドキュメントのフレームを取得。
+        else:
+            currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
+            frame = currentframe.getCreator()
+        if frame:   
+            import time
+            indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
             maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
             indicator.start("Trying to connect to the PyDev Debug Server for about 20 seconds.", maxrange)  # ステータスバーに表示する文字列とプログレスバーの目盛りを設定。
             t = 1  # プレグレスバーの初期値。
@@ -32,7 +36,8 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
         except:
             import traceback; traceback.print_exc()  # これがないとPyDevのコンソールにトレースバックが表示されない。stderrToServer=Trueが必須。
     return wrapper
-def macro():  # オートメーションではリスナーが呼ばれない、閉じるボタンでウィンドウを閉じるとLibreOfficeがクラッシュする。
+# @enableRemoteDebugging
+def macro():  # オートメーションでは発火しないリスナーがある、閉じるボタンでウィンドウを閉じるとLibreOfficeがクラッシュする。
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
     doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
@@ -42,10 +47,10 @@ def macro():  # オートメーションではリスナーが呼ばれない、�
     window = createWindow(toolkit, CLOSEABLE+SHOW+MOVEABLE+SIZEABLE, {"PositionX": 100, "PositionY": 100, "Width": 500, "Height": 500, "Type": TOP})  
     window.setVisible(False)  # 描画中のウィンドウは表示しない。
     dummy_frame = addToFrames(ctx, smgr, docframe, window)  # 親フレームとウィンドウを渡す。新しいフレームのコンテナウィンドウにする。
-    menubar = smgr.createInstanceWithContext("com.sun.star.awt.MenuBar", ctx)
-    menubar.insertItem(1, "~First MenuBar Item", AUTOCHECK, 0)
-    menubar.insertItem(2, "~Second MenuBar Item", AUTOCHECK, 1)
-    window.setMenuBar(menubar)
+    menubar = smgr.createInstanceWithContext("com.sun.star.awt.MenuBar", ctx)  # メニューバーをインスタンス化。
+    menubar.insertItem(1, "~First MenuBar Item", 0, 0)  # ID(1から開始), ラベル、スタイル(0または定数com.sun.star.awt.MenuItemStyleの和)、位置(0から開始)
+    menubar.insertItem(2, "~Second MenuBar Item", 0, 1)
+    window.setMenuBar(menubar)  # メニューバーをウィンドウに追加。UnoControlDialogに追加しても目に見えない。
     items = ("First Entry", AUTOCHECK),\
             ("First Radio Entry", RADIOCHECK+AUTOCHECK),\
             ("Second Radio Entry", RADIOCHECK+AUTOCHECK),\
@@ -54,12 +59,12 @@ def macro():  # オートメーションではリスナーが呼ばれない、�
             ("Fifth Entry", AUTOCHECK),\
             ("Fourth Entry", AUTOCHECK),\
             ("Sixth Entry", 0),\
-            ("Close Dialog", 0)
-    popupmenu = createPopupMenu(ctx, smgr, items)
-    popupmenu.enableItem(2, False)
-    popupmenu.checkItem(3, True)
-    popupmenu.addMenuListener(MenuListener(window))
-    menubar.setPopupMenu(1, popupmenu)  
+            ("Close Dialog", 0)  # ポップアップメニューの項目。タプルのインデックスが位置に相当。IDはインデックス+1。
+    popupmenu = createPopupMenu(ctx, smgr, items)  # ポップメニューを取得。
+    popupmenu.enableItem(2, False)  # メニュー項目をIDで指定して、Falseでグレーアウト。
+    popupmenu.checkItem(3, True)  # チェックできるメニュー項目をIDで指定して、Trueでチェックを付ける。
+    popupmenu.addMenuListener(MenuListener(window))  # ポップアップメニューにリスナを付ける。
+    menubar.setPopupMenu(1, popupmenu)  # メニューバーのIDを指定してポップアップメニューを追加。  
     window.setVisible(True)
 class MenuListener(unohelper.Base, XMenuListener):
     def __init__(self, window):
@@ -68,7 +73,7 @@ class MenuListener(unohelper.Base, XMenuListener):
         pass
 #     @enableRemoteDebugging
     def itemSelected(self, menuevent):  # PopupMenuの項目がクリックされた時。
-        if menuevent.MenuId == 9:
+        if menuevent.MenuId == 9:  # メニュー項目のIDを取得できる。
             self.window.dispose()  # ウィンドウを閉じる。
     def itemActivated(self, menuevent):
         pass
@@ -76,13 +81,13 @@ class MenuListener(unohelper.Base, XMenuListener):
         pass   
     def disposing(self, eventobject):
         pass  
-def createPopupMenu(ctx, smgr, items):   
-    popupmenu = smgr.createInstanceWithContext("com.sun.star.awt.PopupMenu", ctx) 
-    for i, item in enumerate(items, start=1):
-        if item:
+def createPopupMenu(ctx, smgr, items):  # ポップメニューを返す。itemsは項目のラベルとスタイルのタプルのタプル。   
+    popupmenu = smgr.createInstanceWithContext("com.sun.star.awt.PopupMenu", ctx)  # ポップアップメニューをインスタンス化。
+    for i, item in enumerate(items, start=1):  # 1から始まるiをIDにする。
+        if item:  # ラベルとスタイルのタプルが取得できた時。
             popupmenu.insertItem(i, *item, i-1)  # ItemId, Text, ItemSytle, ItemPos。
         else:
-            popupmenu.insertSeparator(i)  # ItemPos    
+            popupmenu.insertSeparator(i)  # ItemPos。セパレーターのときは位置を設定するだけ。    
     return popupmenu
 def createWindow(toolkit, attr, props):  # ウィンドウタイトルは変更できない。attrはcom.sun.star.awt.WindowAttributeの和。propsはPositionX, PositionY, Width, Height, ParentIndex。
     aRect = Rectangle(X=props.pop("PositionX"), Y=props.pop("PositionY"), Width=props.pop("Width"), Height=props.pop("Height"))
@@ -128,7 +133,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
             def getComponentContext(self):
                 return self.ctx
             def getDesktop(self):
-                return self.ctx.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
+                return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
             def getDocument(self):
                 return self.getDesktop().getCurrentComponent()
         return ScriptContext(ctx)  
