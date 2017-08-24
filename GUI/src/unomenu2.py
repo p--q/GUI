@@ -41,34 +41,35 @@ def macro():
 	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
-	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 200, "Height": 140, "Title": "Menu-Dialog", "Name": "Dialog1", "Step": 1, "TabIndex": 0, "Moveable": True})
+	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。 
+	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 200, "Height": 140, "Title": "Menu-Dialog", "Name": "Dialog1", "Step": 1, "TabIndex": 0, "Moveable": True})	
+	createMenu = menuCreator(ctx, smgr)
+	menulistener = MenuListener(dialog)  # ポップアップメニューにつけるメニューリスナーを取得。
+	items = ("First Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
+			("First Radio Entry", RADIOCHECK+AUTOCHECK, {"enableItem": False}),\
+			("Second Radio Entry", RADIOCHECK+AUTOCHECK),\
+			("Third Radio Entry", RADIOCHECK+AUTOCHECK, {"checkItem": True}),\
+			(),\
+			("Fifth Entry", CHECKABLE+AUTOCHECK),\
+			("Fourth Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
+			("Sixth Entry", 0),\
+			("~Close", 0, {"setCommand": "close"})
+	popupmenu =  createMenu("PopupMenu", items, {"addMenuListener": menulistener})  # 右クリックでまず呼び出すポップアップメニュー。  
+	items = ("First Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
+			("Second Entry", 0)
+	subpopupmenu =  createMenu("PopupMenu", items, {"addMenuListener": menulistener})  # 入れ子にするポップアップメニュー。
+	popupmenu.setPopupMenu (8, subpopupmenu)  # ポップアップメニューを入れ子にする。	
 	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 200, "Height": 8, "Label": "This code-sample demonstrates the creation of a popup-menu."})
-	addControl("FixedText", {"PositionX": 50, "PositionY": 50, "Width": 100, "Height": 8, "Label": "Right-click here"}, {"addMouseListener": MouseListener(ctx, smgr, dialog)})
+	addControl("FixedText", {"PositionX": 50, "PositionY": 50, "Width": 100, "Height": 8, "Label": "Right-click here"}, {"addMouseListener": MouseListener(ctx, smgr, popupmenu)})
 	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。
 	# ノンモダルダイアログにするとき。
-# 	showModelessly(ctx, smgr, docframe, dialog)  	
+# 	menulistener.frame = showModelessly(ctx, smgr, docframe, dialog)  # メニューで閉じるためにフレームをメニューリスナーに渡す。 	
 	# モダルダイアログにする。フレームに追加するとエラーになる。
 	dialog.execute()  
 	dialog.dispose()		
 class MouseListener(unohelper.Base, XMouseListener):  # Editコントロールではうまく動かない。	
-	def __init__(self, ctx, smgr, dialog):
-		createMenu = menuCreator(ctx, smgr)
-		menulistener = MenuListener(dialog)  # ポップアップメニューにつけるメニューリスナーを取得。
-		items = ("First Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
-				("First Radio Entry", RADIOCHECK+AUTOCHECK, {"enableItem": False}),\
-				("Second Radio Entry", RADIOCHECK+AUTOCHECK),\
-				("Third Radio Entry", RADIOCHECK+AUTOCHECK, {"checkItem": True}),\
-				(),\
-				("Fifth Entry", CHECKABLE+AUTOCHECK),\
-				("Fourth Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
-				("Sixth Entry", 0),\
-				("~Close", 0, {"setCommand": "close"})
-		self.popupmenu =  createMenu("PopupMenu", items, {"addMenuListener": menulistener})  # 右クリックでまず呼び出すポップアップメニュー。  
-		items = ("First Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
-				("Second Entry", 0)
-		popupmenu =  createMenu("PopupMenu", items, {"addMenuListener": menulistener})  # 入れ子にするポップアップメニュー。
-		self.popupmenu.setPopupMenu (8, popupmenu)  # ポップアップメニューを入れ子にする。
+	def __init__(self, ctx, smgr, popupmenu):
+		self.popupmenu = popupmenu
 # 	@enableRemoteDebugging
 	def mousePressed(self, mouseevent):  # マウスがクリックされた時。
 		control, dummy_controlmodel, name = eventSource(mouseevent)
@@ -87,17 +88,17 @@ class MouseListener(unohelper.Base, XMouseListener):  # Editコントロール�
 class MenuListener(unohelper.Base, XMenuListener):
 	def __init__(self, dialog):
 		self.dialog = dialog
+		self.frame = None  # ノンモダルダイアログで使用。
 	def itemHighlighted(self, menuevent):
 		pass
 #	 @enableRemoteDebugging
 	def itemSelected(self, menuevent):  # PopupMenuの項目がクリックされた時。
 		cmd = menuevent.Source.getCommand(menuevent.MenuId)
 		if cmd == "close":
-			doc = XSCRIPTCONTEXT.getDocument()
-			if doc:  # ドキュメントが取得できた時はモダルダイアログと判断する(汎用性は未確認)。
+			if self.frame is None:  # フレームがないときはモダルダイアログ。
 				self.dialog.endExecute()  # ウィンドウを閉じる。モダルダイアログではこれだけで閉じる。 モードレスダイアログは閉じない。
-			else:
-				self.dialog.dispose()  # モードレスダイアログではこれでウィンドウが閉じる(本来はフレームをclose()すべき?)。モダルダイアログではdispose()ではドキュメントまでも閉じてしまう。
+			else:  # フレームがあるときはノンモダルダイアログ。
+				self.frame.close(True)  # フレームを閉じる。self.dialog.dispose()でも閉じる。モダルダイアログではdispose()ではドキュメントまでも閉じてしまう。
 	def itemActivated(self, menuevent):
 		pass
 	def itemDeactivated(self, menuevent):
