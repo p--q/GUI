@@ -1,5 +1,6 @@
 eclipse.preferences.version=1
 encoding//src/dialogdocument.py=utf-8
+encoding//src/getextensionsfilters.py=utf-8
 encoding//src/getgraphicfilters.py=utf-8
 encoding//src/imagecontrolsample.py=utf-8
 encoding//src/macro/modelessdialog2macro_createWindow.py=utf-8
@@ -10,6 +11,7 @@ encoding//src/messagebox.py=utf-8
 encoding//src/progressbar.py=utf-8
 encoding//src/splitter/splitter_createWindow.py=utf-8
 encoding//src/splitter/splitter_unocontroldialog.py=utf-8
+encoding//src/systemdialog.py=utf-8
 encoding//src/temp.py=utf-8
 encoding//src/unodialogsample.py=utf-8
 encoding//src/unodialogsample2.py=utf-8
