@@ -33,18 +33,6 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 		except:
 			import traceback; traceback.print_exc()  # これがないとPyDevのコンソールにトレースバックが表示されない。stderrToServer=Trueが必須。
 	return wrapper
-def timethis(func):
-	doc = XSCRIPTCONTEXT.getDocument()  # Writerドキュメントを取得。
-	@wraps(func)
-	def wrapper(*args, **kwargs):
-		start = time.perf_counter()
-		r = func(*args, **kwargs)
-		end = time.perf_counter()
-		doctext = doc.getText().getString()  # すでにドキュメントにある文字列を取得。
-		doc.getText().setString('{}\n{}.{} : {}'.format(doctext, func.__module__, func.__name__, end-start))  # Writerドキュメントに出力。 上書き。 
-# 		print('{}.{} : {}'.format(func.__module__, func.__name__, end-start))
-		return r
-	return wrapper	
 # @enableRemoteDebugging
 def macro():  # オートメーションでFilePickerサービスをインスタンス化するとクラッシュする。
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
@@ -54,26 +42,11 @@ def macro():  # オートメーションでFilePickerサービスをインスタ
 	filterall = "All Image Files"
 	filters[filterall] = ";".join(filters.values())  # すべての画像ファイルをまとめたフィルターを辞書に追加。
 	filters["All Files"] = "*.*"  # すべてのファイルのフィルターを辞書に追加。
-	filepicker = appendFilterGroup(ctx, smgr, filters, filterall, templateurl)
-	filepicker.execute()
-	filepicker = appendFilter(ctx, smgr, filters, filterall, templateurl)
-	filepicker.execute()
-@timethis
-def appendFilterGroup(ctx, smgr, filters, filterall, templateurl):	
-	filterpairs = []
-	[filterpairs.append(StringPair(First=key, Second=filters[key])) for key in sorted(filters.keys())]
-	filepicker = smgr.createInstanceWithArgumentsAndContext("com.sun.star.ui.dialogs.FilePicker", (FILEOPEN_SIMPLE,), ctx)
-	filepicker.setDisplayDirectory(templateurl)  # デフォルトで表示するフォルダを設定。設定しないと「最近開いたファイル」が表示される。
-	filepicker.appendFilterGroup("Filters", filterpairs)
-	filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルターを設定。linuxBeanのFILESAVE系では「すべての形式」(*以外のフィルターの拡張子を足したもの）というのが表示されてしまう。
-	return filepicker
-@timethis	
-def appendFilter(ctx, smgr, filters, filterall, templateurl):	
 	filepicker = smgr.createInstanceWithArgumentsAndContext("com.sun.star.ui.dialogs.FilePicker", (FILEOPEN_SIMPLE,), ctx)
 	filepicker.setDisplayDirectory(templateurl)  # デフォルトで表示するフォルダを設定。設定しないと「最近開いたファイル」が表示される。
 	[filepicker.appendFilter(key, filters[key]) for key in sorted(filters.keys())]  # フィルターは追加された順に表示されるのでfiltersをキーでソートしてから追加している。filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルターを設定。linuxBeanのFILESAVE系では「すべての形式」(*以外のフィルターの拡張子を足したもの）というのが表示されてしまう。
 	filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルターを設定。linuxBeanのFILESAVE系では「すべての形式」(*以外のフィルターの拡張子を足したもの）というのが表示されてしまう。
-	return filepicker
+	filepicker.execute()
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper
