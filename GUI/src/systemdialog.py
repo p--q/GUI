@@ -1,12 +1,8 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
 import unohelper  # オートメーションには必須(必須なのはuno)。
-from com.sun.star.beans import PropertyValue
-from com.sun.star.ui.dialogs.TemplateDescription import FILESAVE_AUTOEXTENSION
-from com.sun.star.ui.dialogs.ExtendedFilePickerElementIds import CHECKBOX_AUTOEXTENSION
-from com.sun.star.ui.dialogs.ExecutableDialogResults import OK as ExecutableDialogResults_OK
-
-
+import sys
+from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_SIMPLE, FILEOPEN_LINK_PREVIEW_IMAGE_TEMPLATE, FILEOPEN_PLAY,FILEOPEN_READONLY_VERSION, FILEOPEN_LINK_PREVIEW, FILESAVE_SIMPLE, FILESAVE_AUTOEXTENSION_PASSWORD, FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS, FILESAVE_AUTOEXTENSION_SELECTION, FILESAVE_AUTOEXTENSION_TEMPLATE, FILESAVE_AUTOEXTENSION
 def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
 	def wrapper(*args, **kwargs):
 		import pydevd
@@ -36,71 +32,70 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 			import traceback; traceback.print_exc()  # これがないとPyDevのコンソールにトレースバックが表示されない。stderrToServer=Trueが必須。
 	return wrapper
 # @enableRemoteDebugging
-def macro():
+def macro():  # オートメーションでFilePickerサービスをインスタンス化するとクラッシュする。
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	thepathsettings = ctx.getByName('/singletons/com.sun.star.util.thePathSettings')
-	filepicker = smgr.createInstanceWithContext("com.sun.star.ui.dialogs.FilePicker", ctx)
-	filepicker.setDefaultName("MyExampleDocument")
-	templateurl = thepathsettings.getPropertyValue("Work")  
-	filepicker.setDisplayDirectory(templateurl)
-	configurationprovider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider", ctx)  # ConfigurationProviderの取得。
-	configreader = createConfigReader(configurationprovider)  # 読み込み専用の関数を取得。
-	root = configreader("/org.openoffice.Office.UI/FilterClassification/GlobalFilters/Classes")  # グローバルフィルター。
-	props = "DisplayName", "Filters"  # 取得するプロパティ名のタプル。
-	filters = {}  # フィルターの辞書。UINameをキー、拡張子のタプルを値とする。
-	for childname in root.getElementNames():  # 子ノードの名前のタプルを取得。ノードオブジェクトの直接取得はできない模様。
-		node = root.getByName(childname)  # ノードオブジェクトを取得。
-		displayname, globalfilters = node.getPropertyValues(props)  # propの値を取得。displaynameは翻訳語のものが返ってくる。
-		filters[displayname] = ";".join(globalfilters)
-# 	filters[displayname] = globalfilters
-# 	filterall = "All Files"
-# 	filters[filterall] = "*.*"
-# 	for key, val in filters.items():
-# 		filepicker.appendFilter(key, val)
-		
-		
-		
-# 		filepicker.appendFilter(key, val)
-
-	filepicker.appendFilter("All Files", "*.*")
-	
-# 	filepicker.setCurrentFilter(filterall)
-	filepicker.appendFilter("OpenDocument Text Template", "writer8_template")
-	filepicker.appendFilter("OpenDocument Text", "writer 8")
-	
-	
-# 	filepicker.initialize((FILESAVE_AUTOEXTENSION,))
-
-# 	filepicker.initialize((2,))
-
-# 	filepicker.setValue(CHECKBOX_AUTOEXTENSION, 6, True)
-	result = filepicker.execute()
-# 	if result==ExecutableDialogResults_OK:
-# 		pathlist = filepicker.getFiles()
-# 		if pathlist:
-# 			storepath = pathlist[0]
-# 	workurl = thepathsettings.getPropertyValue("Work") 	
-# 	folderpicker = smgr.createInstanceWithContext("com.sun.star.ui.dialogs.FolderPicker", ctx)
-# 	folderpicker.setDisplayDirectory(workurl)
-# 	folderpicker.setTitle("My Title")
-# 	result = folderpicker.execute()
-# 	if result==ExecutableDialogResults_OK:
-# 		returnfolder = folderpicker.getDirectory()
-	
-	
-
-def createConfigReader(cp):  # ConfigurationProviderサービスのインスタンスを受け取る高階関数。
-	def getRoot(path):  # ConfigurationAccessサービスのインスタンスを返す関数。
-		node = PropertyValue(Name="nodepath", Value=path)
-		return cp.createInstanceWithArguments("com.sun.star.configuration.ConfigurationAccess", (node,))
-	return getRoot
+	templateurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # デフォルトで表示するフォルダを取得。
+	filters = {'WordPerfect Graphics': '*.wpg', 'SVM - StarView Meta File': '*.svm', 'PSD - Adobe Photoshop': '*.psd', 'EMF - Enhanced Meta File': '*.emf', 'PCD - Photo CD Base16': '*.pcd', 'PCD - Photo CD Base': '*.pcd', 'SGF - StarWriter SGF': '*.sgf', 'PGM - Portable Graymap': '*.pgm', 'SVG - Scalable Vector Graphics': '*.svg;*.svgz', 'PPM - Portable Pixelmap': '*.ppm', 'XBM - X Bitmap': '*.xbm', 'PBM - Portable Bitmap': '*.pbm', 'RAS - Sun Raster Image': '*.ras', 'WMF - Windows Metafile': '*.wmf', 'PCD - Photo CD Base4': '*.pcd', 'TGA - Truevision Targa': '*.tga', 'GIF - Graphics Interchange': '*.gif', 'Corel Presentation Exchange': '*.cmx', 'Adobe/Macromedia Freehand': '*.fh;*.fh1;*.fh2;*.fh3;*.fh4;*.fh5;*.fh6;*.fh7;*.fh8;*.fh9;*.fh10;*.fh11', 'CGM - Computer Graphics Metafile': '*.cgm', 'XPM - X PixMap': '*.xpm', 'MET - OS/2 Metafile': '*.met', 'DXF - AutoCAD Interchange Format': '*.dxf', 'JPEG - Joint Photographic Experts Group': '*.jpg;*.jpeg;*.jfif;*.jif;*.jpe', 'TIFF - Tagged Image File Format': '*.tif;*.tiff', 'PNG - Portable Network Graphic': '*.png', 'PCT - Mac Pict': '*.pct;*.pict', 'EPS - Encapsulated PostScript': '*.eps', 'BMP - Windows Bitmap': '*.bmp', 'PCX - Zsoft Paintbrush': '*.pcx'}  # 画像フィルターの辞書。
+	filterall = "All Image Files"
+	filters[filterall] = ";".join(filters.values())  # すべての画像ファイルをまとめたフィルターを辞書に追加。
+	filters["All Files"] = "*.*"  # すべてのファイルのフィルターを辞書に追加。
+	# ファイルを開くダイアログ。
+	fileopens = FILEOPEN_SIMPLE, FILEOPEN_LINK_PREVIEW_IMAGE_TEMPLATE, FILEOPEN_PLAY, FILEOPEN_READONLY_VERSION, FILEOPEN_LINK_PREVIEW
+	templatenames = "FILEOPEN_SIMPLE", "FILEOPEN_LINK_PREVIEW_IMAGE_TEMPLATE", "FILEOPEN_PLAY", "FILEOPEN_READONLY_VERSION", "FILEOPEN_LINK_PREVIEW"
+	for template, templatename in zip(fileopens, templatenames):
+		filepicker = createFilepicker(ctx, smgr, template)
+		settingFilePicker(filepicker, filters, filterall, templateurl, templatename)
+	# LibreOffice5.3以上でのみ使えるファイルを開くダイアログ。
+	try:
+		from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_PREVIEW, FILEOPEN_LINK_PLAY  # LibreOffice 5.3以上のみ
+		fileopens = FILEOPEN_PREVIEW, FILEOPEN_LINK_PLAY
+		templatenames = "FILEOPEN_PREVIEW", "FILEOPEN_LINK_PLAY"
+		for template, templatename in zip(fileopens, templatenames):
+			templatename = "{} since LibreOffice 5.3".format(templatename)
+			filepicker = createFilepicker(ctx, smgr, template)
+			settingFilePicker(filepicker, filters, filterall, templateurl, templatename)
+	except ImportError:
+		from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
+		from com.sun.star.awt.MessageBoxType import WARNINGBOX
+		doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+		docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
+		docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
+		toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。 
+		msgbox = toolkit.createMessageBox(docwindow, WARNINGBOX, BUTTONS_OK, "Overwrite", "FILEOPEN_PREVIEW and FILEOPEN_LINK_PLAY need \nLibreOffice version more than 5.3.")
+		msgbox.execute()
+		msgbox.dispose()  # メッセージボックスを破棄。
+	# ファイルを保存するダイアログ。
+	filesaves = FILESAVE_SIMPLE, FILESAVE_AUTOEXTENSION_PASSWORD, FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS, FILESAVE_AUTOEXTENSION_SELECTION, FILESAVE_AUTOEXTENSION_TEMPLATE, FILESAVE_AUTOEXTENSION
+	templatenames = "FILESAVE_SIMPLE", "FILESAVE_AUTOEXTENSION_PASSWORD", "FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS", "FILESAVE_AUTOEXTENSION_SELECTION", "FILESAVE_AUTOEXTENSION_TEMPLATE", "FILESAVE_AUTOEXTENSION"
+	for template, templatename in zip(filesaves, templatenames):
+		filepicker = createFilepicker(ctx, smgr, template)
+		settingFilePicker(filepicker, filters, filterall, templateurl, templatename)		
+	# フォルダの選択するダイアログ。	
+	folderpicker = smgr.createInstanceWithContext("com.sun.star.ui.dialogs.FolderPicker", ctx)
+	folderpicker.setDisplayDirectory(templateurl)
+	folderpicker.setTitle("FolderPicker")
+	folderpicker.execute()
+def createFilepicker(ctx, smgr, template):
+	# サービスマネージャーのcreateInstanceWithArgumentsAndContext()でTemplateDescriptionを指定。
+	filepicker = smgr.createInstanceWithArgumentsAndContext("com.sun.star.ui.dialogs.FilePicker", (template,), ctx)
+	# サービスマネージャーのinitialize()でTemplateDescriptionを指定。
+# 	filepicker = smgr.createInstanceWithContext("com.sun.star.ui.dialogs.FilePicker", ctx)
+# 	filepicker.initialize((template,))	
+	return filepicker
+def settingFilePicker(filepicker, filters, filterall, templateurl, templatename):
+	[filepicker.appendFilter(key, filters[key]) for key in sorted(filters.keys())]  # フィルターは追加された順に表示されるのでfiltersをキーでソートしてから追加している。
+	filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルターを設定。linuxBeanのFILESAVE系では「すべての形式」(*以外のフィルターの拡張子を足したもの）というのが表示されてしまう。	
+	filepicker.setDisplayDirectory(templateurl)  # デフォルトで表示するフォルダを設定。設定しないと「最近開いたファイル」が表示される。
+	filepicker.setDefaultName("UML.png")  # FILEOPEN系では動かない。Windows10では拡張子がfh11になる。		
+	filepicker.setTitle(templatename)
+	filepicker.execute()	
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper
 	from functools import wraps
-	import sys
-# 	from com.sun.star.beans import PropertyValue
+# 	import sys
+	from com.sun.star.beans import PropertyValue
 	from com.sun.star.script.provider import XScriptContext  
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)

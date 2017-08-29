@@ -69,7 +69,7 @@ def macro():
 	cellrange = sheet[:r,:c]  # 代入するセルの範囲を指定する。
 	cellrange.setDataArray(filters)
 	cellrange.getColumns().OptimalWidth = True  # セルの幅を最適化する。実行時に入っているデータに合わせる。
-	root.dispose()  # ConfigurationAccessサービスのインスタンスを破棄。
+	root.dispose() # ConfigurationAccessサービスのインスタンスを破棄。
 def createConfigReader(cp):  # ConfigurationProviderサービスのインスタンスを受け取る高階関数。
 	def getRoot(path):  # ConfigurationAccessサービスのインスタンスを返す関数。
 		node = PropertyValue(Name="nodepath", Value=path)
