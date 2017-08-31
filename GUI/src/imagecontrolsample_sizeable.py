@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 import unohelper  # オートメーションには必須(必須なのはuno)。
 import os
+from com.sun.star.beans import NamedValue
+from com.sun.star.awt import Rectangle
+from com.sun.star.awt.PosSize import POSSIZE
 from com.sun.star.awt.ImageScaleMode import ISOTROPIC
 from com.sun.star.awt import XActionListener
 from com.sun.star.ui.dialogs.ExecutableDialogResults import OK as ExecutableDialogResults_OK
@@ -41,25 +44,36 @@ def macro():
 	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
-	dialog, addControl = dialogCreator(ctx, smgr, {"Name": "ImageControlSample", "PositionX": 102, "PositionY": 41, "Width": 230, "Height": 151, "Title": "Image Control Sample", "Step": 0, "TabIndex": 0, "Moveable": True})  # "Sizeable": Trueが効かない。
-	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 210, "Height": 17, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True})
+	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
+	taskcreator = smgr.createInstanceWithContext('com.sun.star.frame.TaskCreator', ctx)
+	args = NamedValue("PosSize", Rectangle(100, 100, 530, 290)), NamedValue("FrameName", "ImageControlSample")  # , NamedValue("MakeVisible", True)  # TaskCreatorで作成するフレームのコンテナウィンドウのプロパティ。
+	frame = taskcreator.createInstanceWithArguments(args)  # コンテナウィンドウ付きの新しいフレームの取得。
+	window = frame.getContainerWindow()  # 新しいコンテナウィンドウを新しいフレームから取得。
+	frame.setTitle("Image Control Sample")  # フレームのタイトルを設定。
+	docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。	
+	margin_horizontal = 20  # 水平マージン
+	margin_vertical = 13  # 垂直マージン
+	window_width = 537  # ウィンドウ幅
+	window_height = 287  # ウィンドウの高さ
+	headerlabel_height = 36  # Headerlabelの高さ。
+	line_height = 23  # Editコントロールやボタンコントロールの高さ
+	buttonfilepick_width = 56  # ButtonFilePickボタンの幅。
+	buttonclose_width = 114  # ButtonCloseボタンの幅。
+	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"Name": "ImageControlSample", "PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": -1, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は透過色のもよう。
+	addControl("FixedText", {"Name": "Headerlabel", "PositionX": margin_horizontal, "PositionY": margin_vertical, "Width": window_width-margin_horizontal*2, "Height": headerlabel_height, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True, "PosSize": POSSIZE})
 	pathsubstservice = smgr.createInstanceWithContext("com.sun.star.comp.framework.PathSubstitution", ctx)
 	uno_path = pathsubstservice.getSubstituteVariableValue("$(prog)")  # fileurlでprogramフォルダへのパスが返ってくる。
 	fileurl = "{}/intro.png".format(uno_path)  # 画像ファイルへのfileurl
 	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。 
-	addControl("ImageControl", {"PositionX": 6, "PositionY": 29, "Width": 218, "Height": 76, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl})  # "ScaleImage": Trueで画像が歪む。
-	addControl("Edit", {"Name": "EditFilePath","PositionX": 6, "PositionY": 111, "Width": 193, "Height": 14, "Text": imageurl})  
-	addControl("Button", {"Name": "ButtonFilePick", "PositionX": 199, "PositionY": 111, "Width": 25, "Height": 14, "Label": "~Browse", "PushButtonType": 0}, {"addActionListener": ActionListener(ctx, smgr, dialog)})  # PushButtonTypeの値はEnumではエラーになる。
-	addControl("Button", {"PositionX": 90, "PositionY": 131, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
-	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。
-	# ノンモダルダイアログにするとき。
-# 	showModelessly(ctx, smgr, docframe, dialog)  
-	# モダルダイアログにする。フレームに追加するとエラーになる。
-	dialog.execute()
-	dialog.dispose() 
+	addControl("ImageControl", {"PositionX": margin_horizontal, "PositionY": margin_vertical*2+headerlabel_height, "Width": window_width-margin_horizontal*2, "Height": window_height-margin_vertical*5-line_height*2-headerlabel_height, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl, "PosSize": POSSIZE})  # "ScaleImage": Trueで画像が歪む。
+	addControl("Edit", {"Name": "EditFilePath", "PositionX": margin_horizontal, "PositionY":  window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-buttonfilepick_width-2, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})  
+	addControl("Button", {"Name": "ButtonFilePick", "PositionX": window_width-margin_horizontal-buttonfilepick_width, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": buttonfilepick_width, "Height": line_height, "Label": "~Browse", "PushButtonType": 0, "PosSize": POSSIZE}, {"addActionListener": ActionListener(ctx, smgr, controlcontainer)})  # PushButtonTypeの値はEnumではエラーになる。
+	addControl("Button", {"Name": "ButtonClose", "PositionX": (window_width-buttonclose_width)/2, "PositionY": window_height-margin_vertical-line_height, "Width": buttonclose_width, "Height": line_height, "Label": "~Close dialog", "PushButtonType": 1, "PosSize": POSSIZE})  # PushButtonTypeの値はEnumではエラーになる。
+	controlcontainer.createPeer(toolkit, window)  # ウィンドウにコントロールを描画。 
+	controlcontainer.setVisible(True)  # コントロールの表示。
+	window.setVisible(True)  # ウィンドウの表示。
 class ActionListener(unohelper.Base, XActionListener):
-	def __init__(self, ctx, smgr, dialog):
+	def __init__(self, ctx, smgr, controlcontainer):
 		filters = {'WordPerfect Graphics': '*.wpg', 'SVM - StarView Meta File': '*.svm', 'PSD - Adobe Photoshop': '*.psd', 'EMF - Enhanced Meta File': '*.emf', 'PCD - Photo CD Base16': '*.pcd', 'PCD - Photo CD Base': '*.pcd', 'SGF - StarWriter SGF': '*.sgf', 'PGM - Portable Graymap': '*.pgm', 'SVG - Scalable Vector Graphics': '*.svg;*.svgz', 'PPM - Portable Pixelmap': '*.ppm', 'XBM - X Bitmap': '*.xbm', 'PBM - Portable Bitmap': '*.pbm', 'RAS - Sun Raster Image': '*.ras', 'WMF - Windows Metafile': '*.wmf', 'PCD - Photo CD Base4': '*.pcd', 'TGA - Truevision Targa': '*.tga', 'GIF - Graphics Interchange': '*.gif', 'Corel Presentation Exchange': '*.cmx', 'Adobe/Macromedia Freehand': '*.fh;*.fh1;*.fh2;*.fh3;*.fh4;*.fh5;*.fh6;*.fh7;*.fh8;*.fh9;*.fh10;*.fh11', 'CGM - Computer Graphics Metafile': '*.cgm', 'XPM - X PixMap': '*.xpm', 'MET - OS/2 Metafile': '*.met', 'DXF - AutoCAD Interchange Format': '*.dxf', 'JPEG - Joint Photographic Experts Group': '*.jpg;*.jpeg;*.jfif;*.jif;*.jpe', 'TIFF - Tagged Image File Format': '*.tif;*.tiff', 'PNG - Portable Network Graphic': '*.png', 'PCT - Mac Pict': '*.pct;*.pict', 'EPS - Encapsulated PostScript': '*.eps', 'BMP - Windows Bitmap': '*.bmp', 'PCX - Zsoft Paintbrush': '*.pcx'}  # 画像フィルターの辞書。
 		filterall = "All Image Files"  # デフォルトで表示するフィルター名。
 		template = FILEOPEN_SIMPLE
@@ -76,10 +90,10 @@ class ActionListener(unohelper.Base, XActionListener):
 		filepicker.setTitle("Insert Image")			
 		self.filepicker = filepicker
 		self.workurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # Ubuntuではホームフォルダ、Windows10ではドキュメントフォルダのfileurlが返る。
-		self.editcontrol = dialog.getControl("EditFilePath")
-		self.imagecontrolmodel = dialog.getControl("ImageControl1").getModel()
+		self.editcontrol = controlcontainer.getControl("EditFilePath")
+		self.imagecontrolmodel = controlcontainer.getControl("ImageControl1").getModel()
 		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)  
-#	 @enableRemoteDebugging
+# 	@enableRemoteDebugging
 	def actionPerformed(self, actionevent):	
 		dummy_control, dummy_controlmodel, name = eventSource(actionevent)
 		if name == "ButtonFilePick":
@@ -105,46 +119,27 @@ def eventSource(event):  # イベントからコントロール、コントロ�
 	controlmodel = control.getModel()  # コントロールモデルを取得。
 	name = controlmodel.getPropertyValue("Name")  # コントロール名を取得。	
 	return control, controlmodel, name	
-def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
-	frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-	dialog.setVisible(True)  # ダイアログを見えるようにする。   
-	return frame  # フレームにリスナーをつけるときのためにフレームを返す。
-def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
-	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
-	if "PosSize" in dialogprops:  # コントロールモデルのプロパティの辞書にPosSizeキーがあるときはピクセル単位でコントロールに設定をする。
-		dialog.setPosSize(dialogprops.pop("PositionX"), dialogprops.pop("PositionY"), dialogprops.pop("Width"), dialogprops.pop("Height"), dialogprops.pop("PosSize"))  # ダイアログモデルのプロパティで設定すると単位がMapAppになってしまうのでコントロールに設定。
-	dialogmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialogModel", ctx)  # ダイアログモデルの生成。
-	dialogmodel.setPropertyValues(tuple(dialogprops.keys()), tuple(dialogprops.values()))  # ダイアログモデルのプロパティを設定。
-	dialog.setModel(dialogmodel)  # ダイアログにダイアログモデルを設定。
-	dialog.setVisible(False)  # 描画中のものを表示しない。
+def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコンテナと、それにコントロールを追加する関数を返す。まずコントロールコンテナモデルのプロパティを取得。
+	container = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールコンテナの生成。
+	if "PosSize" in containerprops:  # コントロールコンテナのコントロールはma単位は使えずピクセル単位で設定をする。
+		container.setPosSize(containerprops.pop("PositionX"), containerprops.pop("PositionY"), containerprops.pop("Width"), containerprops.pop("Height"), containerprops.pop("PosSize"))
+	else:  
+		raise RuntimeError("You can not use ma unit in the controlmodel of a controlcontainermodel.")   
+	containermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コンテナモデルの生成。
+	containermodel.setPropertyValues(tuple(containerprops.keys()), tuple(containerprops.values()))  # コンテナモデルのプロパティを設定。
+	container.setModel(containermodel)  # コンテナにコンテナモデルを設定。
+	container.setVisible(False)  # 描画中のものを表示しない。
 	def addControl(controltype, props, attrs=None):  # props: コントロールモデルのプロパティ、attr: コントロールの属性。
-		items, currentitemid = None, None
-		if controltype == "Roadmap":  # Roadmapコントロールのとき、Itemsはダイアログモデルに追加してから設定する。そのときはCurrentItemIDもあとで設定する。
-			if "Items" in props:  # Itemsはダイアログモデルに追加されてから設定する。
-				items = props.pop("Items")
-				if "CurrentItemID" in props:  # CurrentItemIDはItemsを追加されてから設定する。
-					currentitemid = props.pop("CurrentItemID")
-		if "PosSize" in props:  # コントロールモデルのプロパティの辞書にPosSizeキーがあるときはピクセル単位でコントロールに設定をする。
+		if "PosSize" in props:  # ピクセル単位でコントロールに設定をする。
 			control = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(controltype), ctx)  # コントロールを生成。
 			control.setPosSize(props.pop("PositionX"), props.pop("PositionY"), props.pop("Width"), props.pop("Height"), props.pop("PosSize"))  # ピクセルで指定するために位置座標と大きさだけコントロールで設定。
 			controlmodel = _createControlModel(controltype, props)  # コントロールモデルの生成。
 			control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。
-			dialog.addControl(props["Name"], control)  # コントロールをコントロールコンテナに追加。
-		else:  # Map AppFont (ma)のときはダイアログモデルにモデルを追加しないと正しくピクセルに変換されない。
-			controlmodel = _createControlModel(controltype, props)  # コントロールモデルの生成。
-			dialogmodel.insertByName(props["Name"], controlmodel)  # ダイアログモデルにモデルを追加するだけでコントロールも作成される。
-		if items is not None:  # コントロールに追加されたRoadmapモデルにしかRoadmapアイテムは追加できない。
-			for i, j in enumerate(items):  # 各Roadmapアイテムについて
-				item = controlmodel.createInstance()
-				item.setPropertyValues(("Label", "Enabled"), j)
-				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
-			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
-				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
+			container.addControl(props["Name"], control)  # コントロールをコントロールコンテナに追加。
+		else:  
+			raise RuntimeError("You can not use ma unit in the controlmodel of a controlcontainermodel.")
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
-			control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
+			control = container.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
 			for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
 				if val is None:
 					getattr(control, key)()
@@ -153,7 +148,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
 		if not "Name" in props:
 			props["Name"] = _generateSequentialName(controltype)  # Nameがpropsになければ通し番号名を生成。
-		controlmodel = dialogmodel.createInstance("com.sun.star.awt.UnoControl{}Model".format(controltype))  # コントロールモデルを生成。UnoControlDialogElementサービスのためにUnoControlDialogModelからの作成が必要。
+		controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。	
 		if props:
 			values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 			if any(map(isinstance, values, [tuple]*len(values))):
@@ -166,10 +161,10 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		flg = True
 		while flg:
 			name = "{}{}".format(controltype, i)
-			flg = dialog.getControl(name)  # 同名のコントロールの有無を判断。
+			flg = container.getControl(name)  # 同名のコントロールの有無を判断。
 			i += 1
 		return name
-	return dialog, addControl  # コントロールコンテナとそのコントロールコンテナにコントロールを追加する関数を返す。
+	return container, addControl  # コントロールコンテナとそのコントロールコンテナにコントロールを追加する関数を返す。
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper

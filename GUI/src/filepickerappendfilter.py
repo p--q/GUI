@@ -54,9 +54,9 @@ def macro():  # オートメーションでFilePickerサービスをインスタ
 	filterall = "All Image Files"
 	filters[filterall] = ";".join(filters.values())  # すべての画像ファイルをまとめたフィルターを辞書に追加。
 	filters["All Files"] = "*.*"  # すべてのファイルのフィルターを辞書に追加。
-	filepicker = appendFilterGroup(ctx, smgr, filters, filterall, templateurl)
-	filepicker.execute()
 	filepicker = appendFilter(ctx, smgr, filters, filterall, templateurl)
+	filepicker.execute()
+	filepicker = appendFilterGroup(ctx, smgr, filters, filterall, templateurl)
 	filepicker.execute()
 @timethis
 def appendFilterGroup(ctx, smgr, filters, filterall, templateurl):	
