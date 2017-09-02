@@ -55,8 +55,7 @@ def macro():
 			sys.exit()  # 終了する。
 		msgbox.dispose()  # メッセージボックスを破棄。
 	sheet.clearContents(VALUE+DATETIME+STRING+ANNOTATION+FORMULA+HARDATTR)  # シートの全内容をクリア。	
-	configurationprovider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider", ctx)  # ConfigurationProviderの取得。
-	configreader = createConfigReader(configurationprovider)  # 読み込み専用の関数を取得。
+	configreader = createConfigReader(ctx, smgr)  # 読み込み専用の関数を取得。
 	root = configreader("/org.openoffice.TypeDetection.Types/Types")  # org.openoffice.TypeDetectionパンケージのTypesコンポーネントのTypesノードを根ノードにする。
 	props = "UIName", "Extensions", "MediaType"  # 取得するプロパティ名のタプル。
 	filters = []  # フィルターのタプル。
@@ -70,11 +69,12 @@ def macro():
 	cellrange.setDataArray(filters)
 	cellrange.getColumns().OptimalWidth = True  # セルの幅を最適化する。実行時に入っているデータに合わせる。
 	root.dispose() # ConfigurationAccessサービスのインスタンスを破棄。
-def createConfigReader(cp):  # ConfigurationProviderサービスのインスタンスを受け取る高階関数。
-	def getRoot(path):  # ConfigurationAccessサービスのインスタンスを返す関数。
+def createConfigReader(ctx, smgr):  # ConfigurationProviderサービスのインスタンスを受け取る高階関数。
+	configurationprovider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider", ctx)  # ConfigurationProviderの取得。
+	def configReader(path):  # ConfigurationAccessサービスのインスタンスを返す関数。
 		node = PropertyValue(Name="nodepath", Value=path)
-		return cp.createInstanceWithArguments("com.sun.star.configuration.ConfigurationAccess", (node,))
-	return getRoot
+		return configurationprovider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationAccess", (node,))
+	return configReader
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper
