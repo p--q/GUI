@@ -8,7 +8,6 @@ from com.sun.star.ui.dialogs.ExecutableDialogResults import OK as ExecutableDial
 from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_SIMPLE
 def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
 	def wrapper(*args, **kwargs):
-		import pydevd
 		frame = None
 		doc = XSCRIPTCONTEXT.getDocument()
 		if doc:  # ドキュメントが取得できた時
@@ -28,7 +27,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 				t += 1  # プログレスバーの目盛りを増やす。
 			indicator.end()  # reset()の前にend()しておかないと元に戻らない。
 			indicator.reset()  # ここでリセットしておかないと例外が発生した時にリセットする機会がない。
-		pydevd.settrace(stdoutToServer=True, stderrToServer=True)  # デバッグサーバーを起動していた場合はここでブレークされる。
+		import pydevd; pydevd.settrace(stdoutToServer=True, stderrToServer=True)  # デバッグサーバーを起動していた場合はここでブレークされる。import pydevdは時間がかかる。
 		try:
 			func(*args, **kwargs)  # Step Intoして中に入る。
 		except:

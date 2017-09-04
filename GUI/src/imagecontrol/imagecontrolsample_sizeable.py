@@ -10,15 +10,8 @@ from com.sun.star.awt import XActionListener
 from com.sun.star.ui.dialogs.ExecutableDialogResults import OK as ExecutableDialogResults_OK
 from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_SIMPLE
 from com.sun.star.awt import XWindowListener
-# from com.sun.star.awt.InvalidateStyle import UPDATE as InvalidateStyle_UPDATE
-# from com.sun.star.awt.InvalidateStyle import CHILDREN, NOCHILDREN, NOERASE, UPDATE, TRANSPARENT, NOTRANSPARENT, NOCLIPCHILDREN
-# from com.sun.star.awt import XMouseListener
-# from com.sun.star.container import XContainerListener
-
-
 def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
 	def wrapper(*args, **kwargs):
-		import pydevd
 		frame = None
 		doc = XSCRIPTCONTEXT.getDocument()
 		if doc:  # ドキュメントが取得できた時
@@ -38,7 +31,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 				t += 1  # プログレスバーの目盛りを増やす。
 			indicator.end()  # reset()の前にend()しておかないと元に戻らない。
 			indicator.reset()  # ここでリセットしておかないと例外が発生した時にリセットする機会がない。
-		pydevd.settrace(stdoutToServer=True, stderrToServer=True)  # デバッグサーバーを起動していた場合はここでブレークされる。
+		import pydevd; pydevd.settrace(stdoutToServer=True, stderrToServer=True)  # デバッグサーバーを起動していた場合はここでブレークされる。import pydevdは時間がかかる。
 		try:
 			func(*args, **kwargs)  # Step Intoして中に入る。
 		except:
@@ -59,10 +52,6 @@ def macro():
 	frame.setTitle("Image Control Sample")  # フレームのタイトルを設定。
 	docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。	
 	actionlistener = ActionListener(ctx, smgr, frame)  # ボタンにつけるリスナー。コントロールコンテナはコントロールが追加されてから取得する。
-	configReader = createConfigReader(ctx, smgr)
-	
-	
-	
 	margin_horizontal = 20  # 水平マージン
 	margin_vertical = 13  # 垂直マージン
 	window_width = 537  # ウィンドウ幅
@@ -76,17 +65,18 @@ def macro():
 	uno_path = pathsubstservice.getSubstituteVariableValue("$(prog)")  # fileurlでprogramフォルダへのパスが返ってくる。
 	fileurl = "{}/intro.png".format(uno_path)  # 画像ファイルへのfileurl
 	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。 	
-	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": 14540253, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は透過色のもよう。
-	addControl("FixedText", {"PositionX": margin_horizontal, "PositionY": margin_vertical, "Width": window_width-margin_horizontal*2, "Height": headerlabel_height, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True, "PosSize": POSSIZE})
-	addControl("ImageControl", {"PositionX": margin_horizontal, "PositionY": margin_vertical*2+headerlabel_height, "Width": window_width-margin_horizontal*2, "Height": window_height-margin_vertical*5-line_height*2-headerlabel_height, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl, "PosSize": POSSIZE})  # "ScaleImage": Trueで画像が歪む。
-	addControl("Edit", {"PositionX": margin_horizontal, "PositionY":  window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-buttonfilepick_width-2, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})  
-	addControl("Button", {"PositionX": window_width-margin_horizontal-buttonfilepick_width, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": buttonfilepick_width, "Height": line_height, "Label": "~Browse", "PosSize": POSSIZE}, {"setActionCommand": "filepick" ,"addActionListener": actionlistener})  # PushButtonTypeの値はEnumではエラーになる。
-	addControl("Button", {"PositionX": (window_width-buttonclose_width)/2, "PositionY": window_height-margin_vertical-line_height, "Width": buttonclose_width, "Height": line_height, "Label": "~Close dialog", "PosSize": POSSIZE}, {"setActionCommand": "close" ,"addActionListener": actionlistener})  # PushButtonTypeは動かない。
-	actionlistener.setControlContainer(controlcontainer)  # getControl()で追加するコントロールが追加されてからコントロールコンテナを取得する。
+	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": 0xF0F0F0, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は透過色のもよう。
+	fixedtext1 = addControl("FixedText", {"PositionX": margin_horizontal, "PositionY": margin_vertical, "Width": window_width-margin_horizontal*2, "Height": headerlabel_height, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True, "PosSize": POSSIZE})
+	imagecontrol1 = addControl("ImageControl", {"PositionX": margin_horizontal, "PositionY": margin_vertical*2+headerlabel_height, "Width": window_width-margin_horizontal*2, "Height": window_height-margin_vertical*5-line_height*2-headerlabel_height, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl, "PosSize": POSSIZE})  # "ScaleImage": Trueで画像が歪む。
+	edit1 = addControl("Edit", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-buttonfilepick_width-2, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})  
+	button1 = addControl("Button", {"PositionX": window_width-margin_horizontal-buttonfilepick_width, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": buttonfilepick_width, "Height": line_height, "Label": "~Browse", "PosSize": POSSIZE}, {"setActionCommand": "filepick" ,"addActionListener": actionlistener})  # PushButtonTypeの値はEnumではエラーになる。
+	button2 = addControl("Button", {"PositionX": (window_width-buttonclose_width)/2, "PositionY": window_height-margin_vertical-line_height, "Width": buttonclose_width, "Height": line_height, "Label": "~Close dialog", "PosSize": POSSIZE}, {"setActionCommand": "close" ,"addActionListener": actionlistener})  # PushButtonTypeは動かない。
+	actionlistener.setControl(imagecontrol1, edit1)  # getControl()で追加するコントロールが追加されてからコントロールコンテナを取得する。
 	controlcontainer.createPeer(toolkit, window)  # ウィンドウにコントロールを描画。 
 	controlcontainer.setVisible(True)  # コントロールの表示。
 	window.setVisible(True)  # ウィンドウの表示。
-	window.addWindowListener(WindowListener(controlcontainer, consts))  # setVisible(True)でも呼び出されるので、その後で実行する。
+	controls = controlcontainer, fixedtext1, imagecontrol1, edit1, button1, button2
+	window.addWindowListener(WindowListener(controls, consts))  # setVisible(True)でも呼び出されるので、その後で実行する。
 class ActionListener(unohelper.Base, XActionListener):
 	def __init__(self, ctx, smgr, frame):
 		self.frame = frame
@@ -107,9 +97,9 @@ class ActionListener(unohelper.Base, XActionListener):
 		self.filepicker = filepicker
 		self.workurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # Ubuntuではホームフォルダ、Windows10ではドキュメントフォルダのfileurlが返る。
 		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)  
-	def setControlContainer(self, controlcontainer):
-		self.editcontrol = controlcontainer.getControl("Edit1")
-		self.imagecontrolmodel = controlcontainer.getControl("ImageControl1").getModel()		
+	def setControl(self, imagecontrol, edit):
+		self.imagecontrolmodel = imagecontrol.getModel()	
+		self.editcontrol = edit	
 # 	@enableRemoteDebugging
 	def actionPerformed(self, actionevent):	
 		cmd = actionevent.ActionCommand
@@ -133,10 +123,7 @@ class ActionListener(unohelper.Base, XActionListener):
 	def disposing(self, eventobject):
 		pass	
 class WindowListener(unohelper.Base, XWindowListener):
-	def __init__(self, controlcontainer, consts):
-		controls = [controlcontainer]
-		for name in ("FixedText1", "ImageControl1", "Edit1", "Button1", "Button2"):  # 名前でコントロールを取得。
-			controls.append(getattr(controlcontainer, "getControl")(name))
+	def __init__(self, controls, consts):
 		self.controls = controls
 		self.consts = consts
 # 	@enableRemoteDebugging		
@@ -159,12 +146,6 @@ class WindowListener(unohelper.Base, XWindowListener):
 		pass
 	def disposing(self, eventobject):
 		pass	
-def createConfigReader(ctx, smgr):  # 読み込み専用の関数を取得。
-	configurationprovider = smgr.createInstanceWithContext("com.sun.star.configuration.ConfigurationProvider", ctx)  # ConfigurationProviderの取得。
-	def configReader(path):  # ConfigurationAccessサービスのインスタンスを返す関数。
-		node = PropertyValue(Name="nodepath", Value=path)
-		return configurationprovider.createInstanceWithArguments("com.sun.star.configuration.ConfigurationAccess", (node,))
-	return configReader	
 def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコンテナと、それにコントロールを追加する関数を返す。まずコントロールコンテナモデルのプロパティを取得。UnoControlDialogElementサービスのプロパティは使えない。propsのキーにPosSize、値にPOSSIZEが必要。   
 	container = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールコンテナの生成。
 	container.setPosSize(containerprops.pop("PositionX"), containerprops.pop("PositionY"), containerprops.pop("Width"), containerprops.pop("Height"), containerprops.pop("PosSize"))
@@ -186,6 +167,7 @@ def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコ
 					getattr(control, key)()
 				else:
 					getattr(control, key)(val)
+		return control  # 追加したコントロールを返す。
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
 		controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。	
 		if props:
