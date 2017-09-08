@@ -97,7 +97,7 @@ class ItemListener(unohelper.Base, XItemListener):
 		maxwidth = workarea.Width - 30  # ランチャーの幅を30pxと見積もる。
 		maxheight = workarea.Height - 60  # ツールバーの高さを60pxと見積もる。		
 		self.window = window
-		self.consts = *imagecontrolmargins, maxwidth, maxheight  # シークエンス型展開*はPyDevでUnused Variableと言われる。
+		self.consts = imagecontrolmargins, maxwidth, maxheight
 	def setControl(self, imagecontrol, radiobuttons):
 		self.imagecontrolmodel = imagecontrol.getModel()  # UnoControlImageの取得。
 		controllabels = {}  # コントロールコンテナのUnoControlRadioButtonはLabelでしか判別できないので、Labelの辞書を作成しておく。

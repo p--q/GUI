@@ -63,7 +63,7 @@ def macro():
 	uno_path = pathsubstservice.getSubstituteVariableValue("$(prog)")  # fileurlでprogramフォルダへのパスが返ってくる。
 	fileurl = "{}/intro.png".format(uno_path)  # 画像ファイルへのfileurl
 	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。 	
-	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": -1, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は透過色のもよう。
+	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": 0xF0F0F0, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は透過色のもよう。
 	addControl("FixedText", {"PositionX": margin_horizontal, "PositionY": margin_vertical, "Width": window_width-margin_horizontal*2, "Height": headerlabel_height, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True, "PosSize": POSSIZE})
 	addControl("ImageControl", {"PositionX": margin_horizontal, "PositionY": margin_vertical*2+headerlabel_height, "Width": window_width-margin_horizontal*2, "Height": window_height-margin_vertical*5-line_height*2-headerlabel_height, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl, "PosSize": POSSIZE})  # "ScaleImage": Trueで画像が歪む。
 	addControl("Edit", {"PositionX": margin_horizontal, "PositionY":  window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-buttonfilepick_width-2, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})  
@@ -139,6 +139,7 @@ def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコ
 					getattr(control, key)()
 				else:
 					getattr(control, key)(val)
+		return control  # 追加したコントロールを返す。
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
 		controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。	
 		if props:

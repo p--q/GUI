@@ -142,13 +142,14 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
+		control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
-			control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
 			for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
 				if val is None:
 					getattr(control, key)()
 				else:
 					getattr(control, key)(val)
+		return control  # 追加したコントロールを返す。
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
 		if not "Name" in props:
 			props["Name"] = _generateSequentialName(controltype)  # Nameがpropsになければ通し番号名を生成。
