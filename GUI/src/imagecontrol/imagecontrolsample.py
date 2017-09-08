@@ -120,6 +120,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 	dialog.setModel(dialogmodel)  # ダイアログにダイアログモデルを設定。
 	dialog.setVisible(False)  # 描画中のものを表示しない。
 	def addControl(controltype, props, attrs=None):  # props: コントロールモデルのプロパティ、attr: コントロールの属性。
+		control = None
 		items, currentitemid = None, None
 		if controltype == "Roadmap":  # Roadmapコントロールのとき、Itemsはダイアログモデルに追加してから設定する。そのときはCurrentItemIDもあとで設定する。
 			if "Items" in props:  # Itemsはダイアログモデルに追加されてから設定する。
@@ -142,7 +143,8 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
-		control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
+		if control is None:  # コントロールがまだインスタンス化されていないとき
+			control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
 			for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
 				if val is None:
