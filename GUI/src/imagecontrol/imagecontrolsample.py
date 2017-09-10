@@ -6,6 +6,10 @@ from com.sun.star.awt.ImageScaleMode import ISOTROPIC
 from com.sun.star.awt import XActionListener
 from com.sun.star.ui.dialogs.ExecutableDialogResults import OK as ExecutableDialogResults_OK
 from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_SIMPLE
+<<<<<<< HEAD
+=======
+from com.sun.star.awt.PosSize import POSSIZE
+>>>>>>> refs/heads/feature/201708231829
 def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
 	def wrapper(*args, **kwargs):
 		frame = None
