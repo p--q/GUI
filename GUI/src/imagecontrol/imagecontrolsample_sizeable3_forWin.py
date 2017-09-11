@@ -129,21 +129,6 @@ class ActionListener(unohelper.Base, XActionListener):
 		self.ctx = ctx
 		self.smgr = smgr
 		self.frame = frame
-# 		filters = {'WordPerfect Graphics': '*.wpg', 'SVM - StarView Meta File': '*.svm', 'PSD - Adobe Photoshop': '*.psd', 'EMF - Enhanced Meta File': '*.emf', 'PCD - Photo CD Base16': '*.pcd', 'PCD - Photo CD Base': '*.pcd', 'SGF - StarWriter SGF': '*.sgf', 'PGM - Portable Graymap': '*.pgm', 'SVG - Scalable Vector Graphics': '*.svg;*.svgz', 'PPM - Portable Pixelmap': '*.ppm', 'XBM - X Bitmap': '*.xbm', 'PBM - Portable Bitmap': '*.pbm', 'RAS - Sun Raster Image': '*.ras', 'WMF - Windows Metafile': '*.wmf', 'PCD - Photo CD Base4': '*.pcd', 'TGA - Truevision Targa': '*.tga', 'GIF - Graphics Interchange': '*.gif', 'Corel Presentation Exchange': '*.cmx', 'Adobe/Macromedia Freehand': '*.fh;*.fh1;*.fh2;*.fh3;*.fh4;*.fh5;*.fh6;*.fh7;*.fh8;*.fh9;*.fh10;*.fh11', 'CGM - Computer Graphics Metafile': '*.cgm', 'XPM - X PixMap': '*.xpm', 'MET - OS/2 Metafile': '*.met', 'DXF - AutoCAD Interchange Format': '*.dxf', 'JPEG - Joint Photographic Experts Group': '*.jpg;*.jpeg;*.jfif;*.jif;*.jpe', 'TIFF - Tagged Image File Format': '*.tif;*.tiff', 'PNG - Portable Network Graphic': '*.png', 'PCT - Mac Pict': '*.pct;*.pict', 'EPS - Encapsulated PostScript': '*.eps', 'BMP - Windows Bitmap': '*.bmp', 'PCX - Zsoft Paintbrush': '*.pcx'}  # 画像フィルターの辞書。
-# 		filterall = "All Image Files"  # デフォルトで表示するフィルター名。
-# 		template = FILEOPEN_SIMPLE
-# 		try:  # 使えるのならFILEOPEN_PREVIEWを使う。
-# 			from com.sun.star.ui.dialogs.TemplateDescription import FILEOPEN_PREVIEW  # LibreOffice 5.3以上のみ
-# 			template = FILEOPEN_PREVIEW
-# 		except ImportError:
-# 			pass
-# 		filepicker = smgr.createInstanceWithArgumentsAndContext("com.sun.star.ui.dialogs.FilePicker", (template,), ctx)
-# 		filepicker.appendFilter("All Files", "*.*")  # すべてのファイルを表示させるフィルターを最初に追加。
-# 		filepicker.appendFilter(filterall, ";".join(filters.values()))  # すべての画像ファイルを表示させるフィルターを2番目に追加。
-# 		[filepicker.appendFilter(key, filters[key]) for key in sorted(filters.keys())]  # フィルターは追加された順に表示されるのでfiltersをキーでソートしてから追加している。
-# 		filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルター名を設定。
-# 		filepicker.setTitle("Insert Image")			
-# 		self.filepicker = filepicker
 		self.workurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # Ubuntuではホームフォルダ、Windows10ではドキュメントフォルダのfileurlが返る。
 		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)  
 	def setControl(self, imagecontrol, edit, fixedtext):
