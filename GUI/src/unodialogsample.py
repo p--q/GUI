@@ -69,7 +69,7 @@ def macro():
 	addControl("RadioButton", {"PositionX": 130, "PositionY": 200, "Width": 150, "Height": 8, "Label": "~First Option", "State": 1, "TabIndex": 50})	 
 	addControl("RadioButton", {"PositionX": 130, "PositionY": 214, "Width": 150, "Height": 8, "Label": "~Second Option", "TabIndex": 51})	  
 	addControl("ListBox", {"PositionX": 106, "PositionY": 230, "Width": 50, "Height": 30, "Dropdown": False, "Step": 0, "MultiSelection": True, "StringItemList": ("First Item", "Second Item", "ThreeItem"), "SelectedItems": (0, 2)})	 
-	addControl("ComboBox", {"PositionX": 160, "PositionY": 230, "Width": 50, "Height": 12, "Dropdown": True, "MaxTextLen": 10, "ReadOnly": False, "Autocomplete": True, "StringItemList": ("First Entry", "Second Entry", "Third Entry", "Fourth Entry")})  # 選択した文字列が取得できない。
+	addControl("ComboBox", {"PositionX": 160, "PositionY": 230, "Width": 60, "Height": 12, "Dropdown": True, "MaxTextLen": 10, "ReadOnly": False, "Autocomplete": True, "StringItemList": ("First Entry", "Second Entry", "Third Entry", "Fourth Entry")}, {"addItemListener": itemlistener})  # 選択した文字列が取得できない。
 	numberformatssupplier = smgr.createInstanceWithContext("com.sun.star.util.NumberFormatsSupplier", ctx)  # フォーマットサプライヤーをインスタンス化。
 	numberformats = numberformatssupplier.getNumberFormats()  # フォーマットサプライヤーからフォーマット一覧を取得。
 	formatstring = "NNNNMMMM DD, YYYY"  # フォーマット。デフォルトのフォーマット一覧はCalc→書式→セル→数値でみれる。
@@ -200,6 +200,7 @@ class SpinListener(unohelper.Base, XSpinListener):
 class ItemListener(unohelper.Base, XItemListener): 
 	def __init__(self, dialog):
 		self.dialog = dialog
+# 	@enableRemoteDebugging
 	def itemStateChanged(self, itemevent):
 		control, dummy_controlmodel, name = eventSource(itemevent)
 		if name == "CheckBox1":
@@ -210,6 +211,8 @@ class ItemListener(unohelper.Base, XItemListener):
 			if state==0 or state==2:
 				btnenable = False
 			buttonmodel.setPropertyValue("Enabled", btnenable)
+		elif name == "ComboBox1":  # コンボボックスは選択した文字列が取得できない。
+			control.setText(itemevent.Selected)		
 	def disposing(self, eventobject):
 		pass	  
 class AdjustmentListener(unohelper.Base, XAdjustmentListener):	# ブレークするとマウスのクリックが無効になる。
