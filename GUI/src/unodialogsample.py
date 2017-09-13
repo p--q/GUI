@@ -83,6 +83,7 @@ def macro():
 	systemworkpath = unohelper.fileUrlToSystemPath(workurl)  # URIをシステム固有のパスに変換する。
 	addControl("FileControl", {"PositionX": 106, "PositionY": 290, "Width": 200, "Height": 14, "Text": systemworkpath})  
 	addControl("Button", {"PositionX": 106, "PositionY": 320, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
+	addControl("FixedHyperlink", {"PositionX": 106, "PositionY": 350, "Width": 100, "Height": 14, "Label": "p--q.blogspot.jp", "URL": "https://p--q.blogspot.jp/", "TextColor": 0x3D578C})
 	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。Stepを使うときはRoadmap以外のコントロールが追加された後にピアを作成しないとStepが重なって表示される。
 	h = dialog.getModel().getPropertyValue("Height")  # ダイアログの高さをma単位で取得。
 	items = ("Introduction", True),\
