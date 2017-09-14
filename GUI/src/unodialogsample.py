@@ -51,7 +51,7 @@ def macro():
 	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 380, "Height": 380, "Title": "LibreOffice", "Name": "MyTestDialog", "Step": 0, "Moveable": True})  # "TabIndex": 0
 	textlistener = TextListener()
 	spinlistener = SpinListener()
-	itemlistener = ItemListener(dialog)
+	itemlistener = ItemListener(dialog) 
 	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 106, "PositionY": 6, "Width": 300, "Height": 8, "Label": "This code-sample demonstrates how to create various controls in a dialog"})
 	addControl("FixedText", {"PositionX": 106, "PositionY": 18, "Width": 100, "Height": 8, "Label": "My Label", "NoLabel": True}, {"addMouseListener": MouseListener(ctx, smgr)})  # , "Step": 0
 	addControl("CurrencyField", {"PositionX": 106, "PositionY": 30, "Width": 60, "Height": 12, "PrependCurrencySymbol": True, "CurrencySymbol": "$", "Value": 2.93}, {"addTextListener": textlistener})
