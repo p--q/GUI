@@ -164,6 +164,7 @@ class KeyListener(unohelper.Base, XKeyListener):
 			END: "END"
 			}
 		self.reg = re.compile(r"[!\"#$%&'()=~|`{+*}<>?\-\^\\@[;:\],./\\\w]+")  # キーボードの文字を網羅。_は\wに含まれる。
+# 	@enableRemoteDebugging
 	def keyPressed(self, keyevent):
 		dummy_control, dummy_controlmodel, name = eventSource(keyevent)
 		if name == "Edit1":
@@ -274,14 +275,14 @@ def toDate(year, month, day):  # 日付のnamedtupleを返す
 		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。
 			return "{:0>4}-{}-{}".format(self.y, self.m, self.d)
 	return StructDate(struct, year, month, day)  # namedtupleを返す
-def toTime(hour=0, minute=0, second=0, microsecond=None, tzinfo=None):  # 時刻のnamedtupleを返す。tzinfoについては未対応。
+def toTime(hour=0, minute=0, second=0, microsecond=None, tzinfo=None):  # 時刻のnamedtupleを返す。
 	microsecond, flg = (0, False) if microsecond is None else (microsecond, True)  # flgはマイクロ秒の表示のためのフラグ。
 	tzinfo = False if tzinfo is None else tzinfo
-	struct = Time(Hours=hour, Minutes=minute, Seconds=second, NanoSeconds=microsecond, IsUTC=tzinfo) # com.sun.star.util.Time
-	class StructTime(namedtuple("StructTime", "Time h m s n")):  # クロージャのsn(s=second, n=nanosecond)を使っているので位置移動不可。
+	struct = Time(Hours=hour, Minutes=minute, Seconds=second, NanoSeconds=microsecond*1000, IsUTC=tzinfo) # com.sun.star.util.Time
+	class StructTime(namedtuple("StructTime", "Time h m s ms")):
 		__slots__ = ()  # インスタンス辞書の作成抑制。
-		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。
-			return "{:>2}:{:0>2}:{:0>2}.{}".format(self.h, self.m, self.s, self.n)	if flg else "{:>2}:{:0>2}:{:0>2}".format(self.h, self.m, self.s)
+		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。tzinfoは出力で使っていません。
+			return "{:>2}:{:0>2}:{:0>2}.{:0>6}".format(self.h, self.m, self.s, self.ms)	if flg else "{:>2}:{:0>2}:{:0>2}".format(self.h, self.m, self.s)
 	return StructTime(struct, hour, minute, second, microsecond)  # namedtupleを返す
 def eventSource(event):  # イベントからコントロール、コントロールモデル、コントロール名を取得。
 	control = event.Source  # イベントを駆動したコントロールを取得。
