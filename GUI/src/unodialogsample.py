@@ -51,7 +51,7 @@ def macro():
 	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 380, "Height": 380, "Title": "LibreOffice", "Name": "MyTestDialog", "Step": 0, "Moveable": True})  # "TabIndex": 0
 	textlistener = TextListener()
 	spinlistener = SpinListener()
-	itemlistener = ItemListener(dialog)
+	itemlistener = ItemListener(dialog) 
 	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 106, "PositionY": 6, "Width": 300, "Height": 8, "Label": "This code-sample demonstrates how to create various controls in a dialog"})
 	addControl("FixedText", {"PositionX": 106, "PositionY": 18, "Width": 100, "Height": 8, "Label": "My Label", "NoLabel": True}, {"addMouseListener": MouseListener(ctx, smgr)})  # , "Step": 0
 	addControl("CurrencyField", {"PositionX": 106, "PositionY": 30, "Width": 60, "Height": 12, "PrependCurrencySymbol": True, "CurrencySymbol": "$", "Value": 2.93}, {"addTextListener": textlistener})
@@ -164,6 +164,7 @@ class KeyListener(unohelper.Base, XKeyListener):
 			END: "END"
 			}
 		self.reg = re.compile(r"[!\"#$%&'()=~|`{+*}<>?\-\^\\@[;:\],./\\\w]+")  # キーボードの文字を網羅。_は\wに含まれる。
+# 	@enableRemoteDebugging
 	def keyPressed(self, keyevent):
 		dummy_control, dummy_controlmodel, name = eventSource(keyevent)
 		if name == "Edit1":
@@ -274,14 +275,14 @@ def toDate(year, month, day):  # 日付のnamedtupleを返す
 		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。
 			return "{:0>4}-{}-{}".format(self.y, self.m, self.d)
 	return StructDate(struct, year, month, day)  # namedtupleを返す
-def toTime(hour=0, minute=0, second=0, microsecond=None, tzinfo=None):  # 時刻のnamedtupleを返す。tzinfoについては未対応。
+def toTime(hour=0, minute=0, second=0, microsecond=None, tzinfo=None):  # 時刻のnamedtupleを返す。
 	microsecond, flg = (0, False) if microsecond is None else (microsecond, True)  # flgはマイクロ秒の表示のためのフラグ。
 	tzinfo = False if tzinfo is None else tzinfo
-	struct = Time(Hours=hour, Minutes=minute, Seconds=second, NanoSeconds=microsecond, IsUTC=tzinfo) # com.sun.star.util.Time
-	class StructTime(namedtuple("StructTime", "Time h m s n")):  # クロージャのsn(s=second, n=nanosecond)を使っているので位置移動不可。
+	struct = Time(Hours=hour, Minutes=minute, Seconds=second, NanoSeconds=microsecond*1000, IsUTC=tzinfo) # com.sun.star.util.Time
+	class StructTime(namedtuple("StructTime", "Time h m s ms")):
 		__slots__ = ()  # インスタンス辞書の作成抑制。
-		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。
-			return "{:>2}:{:0>2}:{:0>2}.{}".format(self.h, self.m, self.s, self.n)	if flg else "{:>2}:{:0>2}:{:0>2}".format(self.h, self.m, self.s)
+		def __str__(self):  # 文字列として呼ばれた場合に返す値を設定。tzinfoは出力で使っていません。
+			return "{:>2}:{:0>2}:{:0>2}.{:0>6}".format(self.h, self.m, self.s, self.ms)	if flg else "{:>2}:{:0>2}:{:0>2}".format(self.h, self.m, self.s)
 	return StructTime(struct, hour, minute, second, microsecond)  # namedtupleを返す
 def eventSource(event):  # イベントからコントロール、コントロールモデル、コントロール名を取得。
 	control = event.Source  # イベントを駆動したコントロールを取得。
