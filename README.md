@@ -22,4 +22,7 @@ These macros also work on Windows 10.
 
 Created by using toolkit createWindow()
 
+<a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
+
+Created by using TaskCreator Service
 
