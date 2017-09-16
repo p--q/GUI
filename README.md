@@ -108,9 +108,11 @@ This repository contains a PyDev package.
 
   - Loading a Writer document onto a component window of the subframe 
 
+### A Sizeable Dialog
 
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/imagecontrol/imagecontrolsample_sizeable3_forWin.py">imagecontrolsample_sizeable3_forWin.py</a>
 
-
+  - The size of the ImageControl follows the size of the window.
 
 
 
