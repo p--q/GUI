@@ -16,7 +16,7 @@ These macros also work on Windows 10.
 
 ## Macros
 
-### Modeless Dialogs
+### Modeless Dialog Examples
 
 #### Three methods for creating a modeless dialog: 
 
@@ -38,7 +38,15 @@ Created by using UnoControlDialog Service
 
 ##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
 
-The text selected in the Writer document is reflected in the edit control on the dialog.
+The text selected in a Writer document is reflected in the edit control on a modeless dialog.
+
+###　Splitter Examples
+
+#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_createWindow.py">splitter_createWindow.py</a>
+
+Splitter on the window created by using Toolkit method createWindow()
+
+#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_unocontroldialog.py">splitter_unocontroldialog.py</a>
 
 
 
