@@ -16,7 +16,7 @@ These macros also work on Windows 10.
 
 ## Macros
 
-### MOdeless Dialogs
+### Modeless Dialogs
 
 #### Three methods for creating a modeless dialog: 
 
