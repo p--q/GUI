@@ -40,7 +40,7 @@ Created by using UnoControlDialog Service
 
 The text selected in a Writer document is reflected in the edit control on a modeless dialog.
 
-###　Splitter Examples
+### Splitter Examples
 
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_createWindow.py">splitter_createWindow.py</a>
 
