@@ -36,9 +36,9 @@ This repository contains a PyDev package.
 
 ####  A modeless dialog linking with a Writer document:
 
-##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
 
-The text selected in a Writer document is reflected in the edit control on a modeless dialog.
+  - The text selected in a Writer document is reflected in the edit control on a modeless dialog.
 
 ### Splitter Examples
 
