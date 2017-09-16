@@ -38,6 +38,12 @@ Created by using UnoControlDialog Service
 
 The text selected in the Writer document is reflected in the edit control on the dialog.
 
+### UnoControlDialog with controls
+
+#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample.py">unodialogsample.py</a>
+
+
+
 
 
 
