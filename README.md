@@ -98,6 +98,10 @@ This repository contains a PyDev package.
 
   - PopupMenu
 
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/imagecontrol/imagecontrolsample.py">imagecontrolsample.py</a>
+
+  - ImageControl
+
 ### UnoControlDialog with a subframe
 
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/dialogdocument.py">dialogdocument.py</a>
