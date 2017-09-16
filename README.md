@@ -43,6 +43,24 @@ The text selected in the Writer document is reflected in the edit control on the
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample.py">unodialogsample.py</a>
 
 
+Currency fields
+Dividing lines
+Text fields
+Time fields
+Date fields
+Fields of groups 
+Pattern fields
+Numerical fields
+Checkboxes
+Radio Buttons
+List boxes
+Combo-boxes 
+Formatted fields
+Scrollbars
+File selection fields 
+Standard buttons
+Hyperlink
+Roadmap
 
 
 
