@@ -1,11 +1,34 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
-import unohelper
-from com.sun.star.awt import WindowDescriptor
-from com.sun.star.awt import Rectangle
-from com.sun.star.awt.WindowClass import SIMPLE
-from com.sun.star.awt.WindowAttribute import  SHOW, BORDER
-from com.sun.star.beans import PropertyValue
+import unohelper  # オートメーションには必須(必須なのはuno)。
+def enableRemoteDebugging(func):  # デバッグサーバーに接続したい関数やメソッドにつけるデコレーター。主にリスナーのメソッドのデバッグ目的。
+	def wrapper(*args, **kwargs):
+		frame = None
+		doc = XSCRIPTCONTEXT.getDocument()
+		if doc:  # ドキュメントが取得できた時
+			frame = doc.getCurrentController().getFrame()  # ドキュメントのフレームを取得。
+		else:
+			currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
+			frame = currentframe.getCreator()
+		if frame:   
+			import time
+			indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
+			maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
+			indicator.start("Trying to connect to the PyDev Debug Server for about 20 seconds.", maxrange)  # ステータスバーに表示する文字列とプログレスバーの目盛りを設定。
+			t = 1  # プレグレスバーの初期値。
+			while t<=maxrange:  # プログレスバーの最大値以下の間。
+				indicator.setValue(t)  # プレグレスバーの位置を設定。
+				time.sleep(1)  # 1秒待つ。
+				t += 1  # プログレスバーの目盛りを増やす。
+			indicator.end()  # reset()の前にend()しておかないと元に戻らない。
+			indicator.reset()  # ここでリセットしておかないと例外が発生した時にリセットする機会がない。
+		import pydevd; pydevd.settrace(stdoutToServer=True, stderrToServer=True)  # デバッグサーバーを起動していた場合はここでブレークされる。import pydevdは時間がかかる。
+		try:
+			func(*args, **kwargs)  # Step Intoして中に入る。
+		except:
+			import traceback; traceback.print_exc()  # これがないとPyDevのコンソールにトレースバックが表示されない。stderrToServer=Trueが必須。
+	return wrapper
+# @enableRemoteDebugging
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
@@ -13,27 +36,22 @@ def macro():
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
 	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
-	dialog, addControl = dialogCreator(ctx, smgr, {"Name": "Dialog1", "PositionX": 102, "PositionY": 41, "Width": 300, "Height": 400, "Title": "Document-Dialog", "Moveable": True, "TabIndex": 0})  # UnoControlDialogを生成、とそれにコントロールを使いする関数addControl。
-	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 300, "Height": 8, "Label": "This code-sample demonstrates how to display an office document in a dialog window", "NoLabel": True})
-	addControl("Button", {"PositionX": 126, "PositionY": 370, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
-	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。
-	dialogwindow = dialog.getPeer()  # ダイアログウィンドウ(=ピア）を取得。
-	subwindow =  createWindow(toolkit, SHOW + BORDER, {"PositionX": 40, "PositionY": 50, "Width": 420, "Height": 550, "ParentIndex": 1, "Parent": dialogwindow, "WindowServiceName": "dockingwindow", "Type": SIMPLE})  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する。3番目の引数サービス名はcom.sun.star.awt.WindowDescriptorで定義されている。
-	subframe = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	subframe.initialize(subwindow)  # フレームにコンテナウィンドウを入れる。  
-	nodes = PropertyValue(Name = "Preview", Value = True), PropertyValue(Name = "ReadOnly", Value = True)  # com.sun.star.document.MediaDescriptor
-	subframe.loadComponentFromURL("private:factory/swriter", "_self", 2, nodes) # フレームのコンポーネントウィンドウにWriterドキュメントをロード。
+	dialog, dummy_addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 380, "Height": 380, "Title": "LibreOffice", "Name": "MyTestDialog", "Step": 0, "Moveable": True})  # "TabIndex": 0
+	dialogmodel = dialog.getModel()  # ダイアログモデルを取得。
+	tabpagecontainermodel = dialogmodel.createInstance("com.sun.star.awt.tab.UnoControlTabPageContainerModel")  # タブページコンテナモデルをインスタンス化。
+	dialogmodel.insertByName("Tab", tabpagecontainermodel)  # タブページコンテナモデルをダイアログモデルに挿入。
+	tabpagecontainermodel.setPropertyValues(("PositionX", "PositionY", "Width", "Height"),(10, 10, 140, 130))  # タブページコンテナモデルの位置と大きさを設定。
+	tabpage1 = tabpagecontainermodel.createTabPage(1)  # タブページコンテナモデルからタブページ1を作成。
+	tabpage1.Title = "TabPage1"  # タブページ1のタイトルを設定。
+	tabpagecontainermodel.insertByIndex(0, tabpage1)  # タブページ1をタブページコンテナモデルに挿入。
+	tabpagecontainer = dialog.getControl("Tab")  # タブページコンテナを取得。
+# 	tabpagecontainer.ActiveTabPageID = 1  # タブページ1をアクティベートする。ここでunsatisfied query for interface of type com.sun.star.awt.tab.XTabPageContainer!
+	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。Stepを使うときはRoadmap以外のコントロールが追加された後にピアを作成しないとStepが重なって表示される。
 	# ノンモダルダイアログにするとき。
-#	 showModelessly(ctx, smgr, docframe, dialog)  
+# 	showModelessly(ctx, smgr, docframe, dialog)  
 	# モダルダイアログにする。フレームに追加するとエラーになる。
 	dialog.execute()  
-	dialog.dispose()   
-def createWindow(toolkit, attr, props):  # ウィンドウタイトルは変更できない。attrはcom.sun.star.awt.WindowAttributeの和。propsはPositionX, PositionY, Width, Height, ParentIndex, Parent, WindowServiceName, Type。
-	aRect = Rectangle(X=props.pop("PositionX"), Y=props.pop("PositionY"), Width=props.pop("Width"), Height=props.pop("Height"))
-	d = WindowDescriptor(Bounds=aRect, WindowAttributes=attr)
-	for key, val in props.items():
-		setattr(d, key, val)
-	return toolkit.createWindow(d)  # ウィンドウピアを返す。 
+	dialog.dispose()	
 def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
 	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
 	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
@@ -50,6 +68,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 	dialog.setModel(dialogmodel)  # ダイアログにダイアログモデルを設定。
 	dialog.setVisible(False)  # 描画中のものを表示しない。
 	def addControl(controltype, props, attrs=None):  # props: コントロールモデルのプロパティ、attr: コントロールの属性。
+		control = None
 		items, currentitemid = None, None
 		if controltype == "Roadmap":  # Roadmapコントロールのとき、Itemsはダイアログモデルに追加してから設定する。そのときはCurrentItemIDもあとで設定する。
 			if "Items" in props:  # Itemsはダイアログモデルに追加されてから設定する。
@@ -72,13 +91,15 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
-		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
+		if control is None:  # コントロールがまだインスタンス化されていないとき
 			control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
+		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
 			for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
 				if val is None:
 					getattr(control, key)()
 				else:
 					getattr(control, key)(val)
+		return control  # 追加したコントロールを返す。
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
 		if not "Name" in props:
 			props["Name"] = _generateSequentialName(controltype)  # Nameがpropsになければ通し番号名を生成。
@@ -104,7 +125,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper
 	from functools import wraps
 	import sys
-#	 from com.sun.star.beans import PropertyValue
+	from com.sun.star.beans import PropertyValue
 	from com.sun.star.script.provider import XScriptContext  
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
@@ -142,4 +163,4 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 		XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
 		while doc is None:  # ドキュメントのロード待ち。
 			doc = XSCRIPTCONTEXT.getDocument()
-	macro()
+	macro()	   

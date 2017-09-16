@@ -1,46 +1,63 @@
 #!/opt/libreoffice5.2/program/python
 # -*- coding: utf-8 -*-
 import unohelper
-from com.sun.star.awt import WindowDescriptor
-from com.sun.star.awt import Rectangle
-from com.sun.star.awt.WindowClass import SIMPLE
-from com.sun.star.awt.WindowAttribute import  SHOW, BORDER
-from com.sun.star.beans import PropertyValue
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
-	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
-	dialog, addControl = dialogCreator(ctx, smgr, {"Name": "Dialog1", "PositionX": 102, "PositionY": 41, "Width": 300, "Height": 400, "Title": "Document-Dialog", "Moveable": True, "TabIndex": 0})  # UnoControlDialogを生成、とそれにコントロールを使いする関数addControl。
-	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 300, "Height": 8, "Label": "This code-sample demonstrates how to display an office document in a dialog window", "NoLabel": True})
-	addControl("Button", {"PositionX": 126, "PositionY": 370, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
-	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。
-	dialogwindow = dialog.getPeer()  # ダイアログウィンドウ(=ピア）を取得。
-	subwindow =  createWindow(toolkit, SHOW + BORDER, {"PositionX": 40, "PositionY": 50, "Width": 420, "Height": 550, "ParentIndex": 1, "Parent": dialogwindow, "WindowServiceName": "dockingwindow", "Type": SIMPLE})  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する。3番目の引数サービス名はcom.sun.star.awt.WindowDescriptorで定義されている。
-	subframe = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	subframe.initialize(subwindow)  # フレームにコンテナウィンドウを入れる。  
-	nodes = PropertyValue(Name = "Preview", Value = True), PropertyValue(Name = "ReadOnly", Value = True)  # com.sun.star.document.MediaDescriptor
-	subframe.loadComponentFromURL("private:factory/swriter", "_self", 2, nodes) # フレームのコンポーネントウィンドウにWriterドキュメントをロード。
-	# ノンモダルダイアログにするとき。
-#	 showModelessly(ctx, smgr, docframe, dialog)  
+	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
+	toolkit = docwindow.getToolkit()  # ツールキットを取得。  
+	dialog, addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 380, "Height": 380, "Title": "LibreOffice", "Name": "MyTestDialog", "Step": 0, "TabIndex": 0, "Moveable": True, "Tag": "ダイアログ"})
+	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。ツールキットと親ウィンドウを渡す。親ウィンドウがNoneのときはdesktopになる。
+	addControl("ProgressBar", {"PositionX": 106, "PositionY": 44, "Width": 250, "Height": 8, "ProgressValueMin": 0, "ProgressValueMax": 100})
+	# ノンモダルダイアログ。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。リスナー以外もオートメーションでは動かない時あり。
+	dialogwindow = dialog.getPeer()  # ダイアログウィンドウを取得。
+	createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
+	createFrame("NewFrame", dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
+
+
+	dialog.setVisible(True)  # ダイアログを見えるようにする。
+	activateProgressBar(toolkit, dialog, docwindow)
+
 	# モダルダイアログにする。フレームに追加するとエラーになる。
-	dialog.execute()  
-	dialog.dispose()   
-def createWindow(toolkit, attr, props):  # ウィンドウタイトルは変更できない。attrはcom.sun.star.awt.WindowAttributeの和。propsはPositionX, PositionY, Width, Height, ParentIndex, Parent, WindowServiceName, Type。
-	aRect = Rectangle(X=props.pop("PositionX"), Y=props.pop("PositionY"), Width=props.pop("Width"), Height=props.pop("Height"))
-	d = WindowDescriptor(Bounds=aRect, WindowAttributes=attr)
-	for key, val in props.items():
-		setattr(d, key, val)
-	return toolkit.createWindow(d)  # ウィンドウピアを返す。 
-def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
-	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
-	frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-	dialog.setVisible(True)  # ダイアログを見えるようにする。   
-	return frame  # フレームにリスナーをつけるときのためにフレームを返す。
+# 	dialog.execute()  
+# 	dialog.dispose()	
+
+
+# 			doc = XSCRIPTCONTEXT.getDocument()
+# 			if doc:
+# 				docframe = doc.getCurrentController().getFrame() 
+# 				indicator = docframe.createStatusIndicator()
+# 				indicatormax = 50
+# 				indicator.start("Waiting for establishing a connection with PyDev Debug Server :  ", indicatormax)
+# 				t = 0
+# 				while t<indicatormax:
+# 					indicator.setValue(t)
+# 					time.sleep(1)
+# 					t += 1
+# 				indicatormax.end()
+
+
+
+def activateProgressBar(toolkit, dialog, docwindow):
+	progressbarcontrol = dialog.getControl("ProgressBar1")
+	progressbarmodel = progressbarcontrol.getModel()
+	progressbarmodel.BackgroundColor = 0x0000ff
+	import time
+	for i in range(0, 101, 20):
+		progressbarmodel.ProgressValue = i
+		dialog.createPeer(toolkit, docwindow)
+# 		progressbarcontrol.createPeer(toolkit, dialogwindow)
+		time.sleep(1)
+def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する関数を返す。親フレームを渡す。   
+	def createFrame(framename, containerwindow):  # 新しいフレーム名、そのコンテナウィンドウにするウィンドウを渡す。
+		frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
+		frame.initialize(containerwindow)  # フレームにウィンドウを入れる。	
+		frame.setName(framename)  # フレーム名を設定。
+		parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
+		return frame		
+	return createFrame			   
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
 	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
 	if "PosSize" in dialogprops:  # コントロールモデルのプロパティの辞書にPosSizeキーがあるときはピクセル単位でコントロールに設定をする。
@@ -50,12 +67,6 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 	dialog.setModel(dialogmodel)  # ダイアログにダイアログモデルを設定。
 	dialog.setVisible(False)  # 描画中のものを表示しない。
 	def addControl(controltype, props, attrs=None):  # props: コントロールモデルのプロパティ、attr: コントロールの属性。
-		items, currentitemid = None, None
-		if controltype == "Roadmap":  # Roadmapコントロールのとき、Itemsはダイアログモデルに追加してから設定する。そのときはCurrentItemIDもあとで設定する。
-			if "Items" in props:  # Itemsはダイアログモデルに追加されてから設定する。
-				items = props.pop("Items")
-				if "CurrentItemID" in props:  # CurrentItemIDはItemsを追加されてから設定する。
-					currentitemid = props.pop("CurrentItemID")
 		if "PosSize" in props:  # コントロールモデルのプロパティの辞書にPosSizeキーがあるときはピクセル単位でコントロールに設定をする。
 			control = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(controltype), ctx)  # コントロールを生成。
 			control.setPosSize(props.pop("PositionX"), props.pop("PositionY"), props.pop("Width"), props.pop("Height"), props.pop("PosSize"))  # ピクセルで指定するために位置座標と大きさだけコントロールで設定。
@@ -65,13 +76,6 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		else:  # Map AppFont (ma)のときはダイアログモデルにモデルを追加しないと正しくピクセルに変換されない。
 			controlmodel = _createControlModel(controltype, props)  # コントロールモデルの生成。
 			dialogmodel.insertByName(props["Name"], controlmodel)  # ダイアログモデルにモデルを追加するだけでコントロールも作成される。
-		if items is not None:  # コントロールに追加されたRoadmapモデルにしかRoadmapアイテムは追加できない。
-			for i, j in enumerate(items):  # 各Roadmapアイテムについて
-				item = controlmodel.createInstance()
-				item.setPropertyValues(("Label", "Enabled"), j)
-				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
-			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
-				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
 			control = dialog.getControl(props["Name"])  # コントロールコンテナに追加された後のコントロールを取得。
 			for key, val in attrs.items():  # メソッドの引数がないときはvalをNoneにしている。
@@ -90,7 +94,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 			else:
 				controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		return controlmodel
-	def _generateSequentialName(controltype):  # コントロールの連番名の作成。
+	def _generateSequentialName(controltype):  # 連番名の作成。
 		i = 1
 		flg = True
 		while flg:
@@ -102,9 +106,10 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 if __name__ == "__main__":  # オートメーションで実行するとき
 	import officehelper
+	import traceback
 	from functools import wraps
 	import sys
-#	 from com.sun.star.beans import PropertyValue
+	from com.sun.star.beans import PropertyValue
 	from com.sun.star.script.provider import XScriptContext  
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
@@ -112,12 +117,15 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 			try:
 				ctx = officehelper.bootstrap()  # コンポーネントコンテクストの取得。
 			except:
-				print("Could not establish a connection with a running office.", file=sys.stderr)
+				print("Could not establish a connection with a running office.")
 				sys.exit()
 			print("Connected to a running office ...")
 			smgr = ctx.getServiceManager()  # サービスマネジャーの取得。
 			print("Using {} {}".format(*_getLOVersion(ctx, smgr)))  # LibreOfficeのバージョンを出力。
-			return func(ctx, smgr)  # 引数の関数の実行。
+			try:
+				return func(ctx, smgr)  # 引数の関数の実行。
+			except:
+				traceback.print_exc()
 		def _getLOVersion(ctx, smgr):  # LibreOfficeの名前とバージョンを返す。
 			cp = smgr.createInstanceWithContext('com.sun.star.configuration.ConfigurationProvider', ctx)
 			node = PropertyValue(Name = 'nodepath', Value = 'org.openoffice.Setup/Product' )  # share/registry/main.xcd内のノードパス。
@@ -132,7 +140,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 			def getComponentContext(self):
 				return self.ctx
 			def getDesktop(self):
-				return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
+				return self.ctx.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
 		return ScriptContext(ctx)  
