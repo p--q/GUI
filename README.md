@@ -114,13 +114,23 @@ UnoControlDialog can not be sizeable.
 
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/imagecontrol/imagecontrolsample_sizeable3_forWin.py">imagecontrolsample_sizeable3_forWin.py</a>
 
-  - The size of the ImageControl follows the size of the window.
+  - The size of the ImageControl follows the size of the window created by using TaskCreator Service.
 
 ### Dialogs with a menu bar
 
-
+You can not display a menu bar in UnoControlDialog.
 
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unomenu_createWindow.py">unomenu_createWindow.py</a>
 
+  - A menu bar in the window created by using Toolkit method createWindow()
 
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unomenu_taskcreator.py">unomenu_taskcreator.py</a>
 
+  - A menu bar in the window created by using using TaskCreator Service
+  
+###  File Selection Dialog　Examples
+
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/systemdialog.py">systemdialog.py</a>
+
+  - The file selection dialog with com.sun.star.ui.dialogs.TemplateDescription as a template is displayed in order.
+  
