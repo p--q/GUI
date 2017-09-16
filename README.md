@@ -34,11 +34,9 @@ This medhod only for creating a modeless dialog.
 
 Created by using UnoControlDialog Service
 
+####  A modeless dialog linking with a Writer document:
 
-
-###  Linking a Writer document with a modeless dialog
-
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
+##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
 
 The text selected in the Writer document is reflected in the edit control on the dialog.
 
