@@ -20,6 +20,6 @@ These macros also work on Windows 10.
 
 <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
-By using toolkit createWindow()
+Created by using toolkit createWindow()
 
 
