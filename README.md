@@ -98,11 +98,11 @@ This repository contains a PyDev package.
 
   - PopupMenu
 
+### UnoControlDialog with a subframe
 
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/dialogdocument.py">dialogdocument.py</a>
 
-
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/dialogdocument.py">dialogdocument.py</a>
-
+  - Loading a Writer document onto a component window of the subframe 
 
 
 
