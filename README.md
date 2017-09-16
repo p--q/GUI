@@ -42,19 +42,19 @@ This repository contains a PyDev package.
 
 ### Splitter Examples
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_createWindow.py">splitter_createWindow.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_createWindow.py">splitter_createWindow.py</a>
 
-Splitter on the window created by using Toolkit method createWindow()
+  - Splitter on the window created by using Toolkit method createWindow()
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_unocontroldialog.py">splitter_unocontroldialog.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_unocontroldialog.py">splitter_unocontroldialog.py</a>
 
-Splitter on the window created by using UnoControlDialog Service
+  - Splitter on the window created by using UnoControlDialog Service
 
 ### UnoControlDialog with various controls
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample.py">unodialogsample.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample.py">unodialogsample.py</a>
 
-Currency fields
+  - Currency fields
 
 Dividing lines
 
