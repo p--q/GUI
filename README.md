@@ -128,9 +128,10 @@ You can not display a menu bar in UnoControlDialog.
 
   - A menu bar in the window created by using using TaskCreator Service
   
-###  File Selection Dialog　Examples
+###  File Selection Dialog Examples
 
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/systemdialog.py">systemdialog.py</a>
 
   - The file selection dialog with com.sun.star.ui.dialogs.TemplateDescription as a template is displayed in order.
   
+    - FILEOPEN_SIMPLE, FILEOPEN_LINK_PREVIEW_IMAGE_TEMPLATE, FILEOPEN_PLAY, FILEOPEN_READONLY_VERSION, FILEOPEN_LINK_PREVIEW
