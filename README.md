@@ -56,47 +56,47 @@ This repository contains a PyDev package.
 
   - Currency fields
 
-Dividing lines
+  - Dividing lines
 
-Text fields
+  - Text fields
 
-Time fields
+  - Time fields
 
-Date fields
+  - Date fields
 
-Fields of groups 
+  - Fields of groups 
 
-Pattern fields
+  - Pattern fields
 
-Numerical fields
+  - Numerical fields
 
-Checkboxes
+  - Checkboxes
 
-Radio Buttons
+  - Radio Buttons
 
-List boxes
+  - List boxes
 
-Combo-boxes 
+  - Combo-boxes 
 
-Formatted fields
+  - Formatted fields
 
-Scrollbars
+  - Scrollbars
 
-File selection fields 
+  - File selection fields 
 
-Standard buttons
+  - Standard buttons
 
-Hyperlink
+  - Hyperlink
 
-Roadmap
+  - Roadmap
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample2.py">unodialogsample2.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample2.py">unodialogsample2.py</a>
 
-Roadmap
+  - Roadmap
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unomenu2.py">unomenu2.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unomenu2.py">unomenu2.py</a>
 
-PopupMenu
+  - PopupMenu
 
 
 
