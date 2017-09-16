@@ -18,8 +18,8 @@ These macros also work on Windows 10.
 
 ### Modeless dialog
 
-<a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">GUI/modelessdialog2macro_createWindow.py at master · p--q/GUI</a>
+<a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
-Using toolkit createWindow()
+By using toolkit createWindow()
 
 
