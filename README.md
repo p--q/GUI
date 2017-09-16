@@ -2,7 +2,7 @@
 
 This repository contains a PyDev package.
 
-### Environment
+#### Environment
 
 linuxBean　(Ubuntu) 14.04 
 
@@ -12,9 +12,11 @@ Eclipse Neon.2 (4.6.2)
 
 PyDev 5.6.0
 
-These macros also work on Windows 10, but debugging may be difficulton on Windows 10 .
+These macros also work on Windows 10.
 
-## How to create a modeless dialog
+## Macros
+
+### Modeless dialog
 
 
 
