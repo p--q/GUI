@@ -110,12 +110,17 @@ This repository contains a PyDev package.
 
 ### A Sizeable Dialog
 
+UnoControlDialog can not be sizeable.
+
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/imagecontrol/imagecontrolsample_sizeable3_forWin.py">imagecontrolsample_sizeable3_forWin.py</a>
 
   - The size of the ImageControl follows the size of the window.
 
+### Dialogs with a menu bar
 
 
+
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unomenu_createWindow.py">unomenu_createWindow.py</a>
 
 
 
