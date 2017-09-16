@@ -12,7 +12,7 @@ This repository contains a PyDev package.
 
 - PyDev 5.6.0
 
-These macros also work on Windows 10.
+: These macros also work on Windows 10.
 
 ## Macros
 
