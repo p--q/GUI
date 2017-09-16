@@ -16,7 +16,7 @@ These macros also work on Windows 10.
 
 ## Macros
 
-### Modeless dialogs
+### Creating a modeless dialog
 
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
@@ -31,3 +31,14 @@ Modal dialogs can not be created with this method.
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
 
 Created by using UnoControlDialog Service
+
+##  Linking a Writer document with a modeless dialog
+
+<a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
+
+The text selected in the Writer document is reflected in the edit control on the dialog.
+
+
+
+
+
