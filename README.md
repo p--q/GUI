@@ -1,7 +1,23 @@
-# GUI
+# LibreOffice Python Macro Collection on GUI
 
-This PyDev project ported Java example of GUI of LibreOffice 's Developer Guide to Python.
+This repository contains a PyDev package.
 
-<a href="https://p--q.blogspot.jp/2017/07/libreoffice555javaguipython-1.html">LibreOffice5 (55) Java example: Part 1 of the GUI to Python</a>
+### Environment
+
+linuxBean　(Ubuntu) 14.04 
+
+LibreOffice 5.2.6.2
+
+Eclipse Neon.2 (4.6.2)
+
+PyDev 5.6.0
+
+These macros also work on Windows 10, but debugging may be difficulton on Windows 10 .
+
+## How to create a modeless dialog
+
+
+
+
 
 
