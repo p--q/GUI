@@ -20,17 +20,17 @@ These macros also work on Windows 10.
 
 #### Three methods for creating a modeless dialog: 
 
-##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
 Created by using Toolkit method createWindow()
 
-##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
 
 Created by using TaskCreator Service
 
 This medhod only for creating a modeless dialog.
 
-##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
 
 Created by using UnoControlDialog Service
 
