@@ -48,11 +48,7 @@ Splitter on the window created by using Toolkit method createWindow()
 
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/splitter/splitter_unocontroldialog.py">splitter_unocontroldialog.py</a>
 
-
-
-
-
-
+Splitter on the window created by using UnoControlDialog Service
 
 ### UnoControlDialog with various controls
 
