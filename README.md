@@ -26,3 +26,8 @@ Created by using Toolkit method createWindow()
 
 Created by using TaskCreator Service
 
+Modal dialogs can not be created with this method.
+
+#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
+
+Created by using UnoControlDialog Service
