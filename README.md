@@ -12,7 +12,7 @@ This repository contains a PyDev package.
 
 - PyDev 5.6.0
 
-: These macros also work on Windows 10.
+These macros also work on Windows 10.
 
 ## Macros
 
@@ -20,19 +20,19 @@ This repository contains a PyDev package.
 
 #### Three methods for creating a modeless dialog: 
 
-    - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
-    Created by using Toolkit method createWindow()
+    - Created by using Toolkit method createWindow()
 
-    - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
 
-    Created by using TaskCreator Service
+    - Created by using TaskCreator Service
 
-    This medhod only for creating a modeless dialog.
+    - This medhod only for creating a modeless dialog.
 
-    - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
+- <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
 
-    Created by using UnoControlDialog Service
+    - Created by using UnoControlDialog Service
 
 ####  A modeless dialog linking with a Writer document:
 
