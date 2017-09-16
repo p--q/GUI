@@ -44,6 +44,7 @@ The text selected in the Writer document is reflected in the edit control on the
 
 
 Currency fields
+
 Dividing lines
 Text fields
 Time fields
