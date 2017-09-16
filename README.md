@@ -16,23 +16,39 @@ These macros also work on Windows 10.
 
 ## Macros
 
-### Three methods for creating a modeless dialog: 
+### MOdeless Dialogs
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
+#### Three methods for creating a modeless dialog: 
+
+##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_createWindow.py">modelessdialog2macro_createWindow.py</a>
 
 Created by using Toolkit method createWindow()
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
+##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_taskcreator.py">modelessdialog2macro_taskcreator.py</a>
 
 Created by using TaskCreator Service
 
-Modal dialogs can not be created with this method.
+This medhod only for creating a modeless dialog.
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
+##### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog2macro_unocontroldialog.py">modelessdialog2macro_unocontroldialog.py</a>
 
 Created by using UnoControlDialog Service
 
-### UnoControlDialog with controls
+
+
+###  Linking a Writer document with a modeless dialog
+
+#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
+
+The text selected in the Writer document is reflected in the edit control on the dialog.
+
+
+
+
+
+
+
+### UnoControlDialog with various controls
 
 #### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/unodialogsample.py">unodialogsample.py</a>
 
@@ -91,11 +107,7 @@ PopupMenu
 
 
 
-###  Linking a Writer document with a modeless dialog
 
-#### <a href="https://github.com/p--q/GUI/blob/master/GUI/src/macro/modelessdialog3macro.py">modelessdialog3macro.py</a>
-
-The text selected in the Writer document is reflected in the edit control on the dialog.
 
 
 
