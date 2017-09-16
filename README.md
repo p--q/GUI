@@ -132,12 +132,12 @@ You can not display a menu bar in UnoControlDialog.
 
 - <a href="https://github.com/p--q/GUI/blob/master/GUI/src/systemdialog.py">systemdialog.py</a>
 
-  - The file selection dialog with com.sun.star.ui.dialogs.TemplateDescription as a template is displayed in order.
+  - File selection dialogs with com.sun.star.ui.dialogs.TemplateDescription as a template are displayed in order.
   
      - FILEOPEN_SIMPLE, FILEOPEN_LINK_PREVIEW_IMAGE_TEMPLATE, FILEOPEN_PLAY, FILEOPEN_READONLY_VERSION, FILEOPEN_LINK_PREVIEW
 
-　　　　- FILEOPEN_PREVIEW, FILEOPEN_LINK_PLAY
+     - FILEOPEN_PREVIEW, FILEOPEN_LINK_PLAY
 
-      - LibreOffice 5.3 and higher only
+       - LibreOffice 5.3 and higher only
 
-　　　　- FILESAVE_SIMPLE, FILESAVE_AUTOEXTENSION_PASSWORD, FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS, FILESAVE_AUTOEXTENSION_SELECTION, FILESAVE_AUTOEXTENSION_TEMPLATE, FILESAVE_AUTOEXTENSION
+     - FILESAVE_SIMPLE, FILESAVE_AUTOEXTENSION_PASSWORD, FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS, FILESAVE_AUTOEXTENSION_SELECTION, FILESAVE_AUTOEXTENSION_TEMPLATE, FILESAVE_AUTOEXTENSION
