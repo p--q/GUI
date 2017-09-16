@@ -28,7 +28,7 @@ def macro():
     spl.setProperty("BackgroundColor", 0xEEEEEE)
     spl.setProperty("Border",1)
     spl.addMouseMotionListener(mouse_motion(controlcontainer))
-    # モードレスダイアグにするｔき
+    # モードレスダイアグにするとき
     createFrame = frameCreator(ctx, smgr, docframe)
     frame = createFrame("newFrame", subwindow)
     frame.setComponent(controlcontainer, None)  # フレームにコントローラを設定する。今回のコントローラはNone。

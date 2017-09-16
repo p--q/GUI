@@ -2,6 +2,7 @@ eclipse.preferences.version=1
 encoding//src/dialogdocument.py=utf-8
 encoding//src/etc/progressbar.py=utf-8
 encoding//src/filepickerappendfilter.py=utf-8
+encoding//src/filepickercontrols.py=utf-8
 encoding//src/getextensionsfilters.py=utf-8
 encoding//src/getgraphicfilters.py=utf-8
 encoding//src/imagecontrol/getparentnode.py=utf-8
