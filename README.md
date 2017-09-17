@@ -76,7 +76,7 @@ This repository contains a PyDev package.
 
   - List boxes
 
-  - Combo-boxes 
+  - Combo-boxes (not work)
 
   - Formatted fields
 
