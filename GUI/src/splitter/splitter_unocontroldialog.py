@@ -79,7 +79,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		controlmodel = dialogmodel.createInstance("com.sun.star.awt.UnoControl{}Model".format(controltype))  # コントロールモデルを生成。UnoControlDialogElementサービスのためにUnoControlDialogModelからの作成が必要。
 		values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 		if any(map(isinstance, values, [tuple]*len(values))):
-			[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+			[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 		else:
 			controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。
