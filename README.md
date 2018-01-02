@@ -139,3 +139,7 @@ You can not display a menu bar in UnoControlDialog.
      - FILEOPEN_PREVIEW, FILEOPEN_LINK_PLAY (LibreOffice 5.3 and higher only)
 
      - FILESAVE_SIMPLE, FILESAVE_AUTOEXTENSION_PASSWORD, FILESAVE_AUTOEXTENSION_PASSWORD_FILTEROPTIONS, FILESAVE_AUTOEXTENSION_SELECTION, FILESAVE_AUTOEXTENSION_TEMPLATE, FILESAVE_AUTOEXTENSION
+
+### Release Notes
+
+2018-1-2 version 1.0.2 Fixed a serious bug. Changed to `setattr(UnoObject, aPropertyName, aValue)` since it is no longer possible to use tuples in aValue of `setPropertyValue([in] string aPropertyName, [in] any aValue)` from LibreOffice 5.4.
