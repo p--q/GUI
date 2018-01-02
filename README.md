@@ -142,4 +142,4 @@ You can not display a menu bar in UnoControlDialog.
 
 ### Release Notes
 
-2018-1-2 version 1.0.2 Fixed a serious bug. Changed to `setattr(UnoObject, aPropertyName, aValue)` since it is no longer possible to use tuples in aValue of `setPropertyValue([in] string aPropertyName, [in] any aValue)` from LibreOffice 5.4.
+2018-1-2 version 1.0.4 Fixed a serious bug. Changed to `setattr(UnoObject, aPropertyName, aValue)` since it is no longer possible to use tuples in aValue of `setPropertyValue([in] string aPropertyName, [in] any aValue)` from LibreOffice 5.4.
