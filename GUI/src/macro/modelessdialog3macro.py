@@ -13,7 +13,7 @@ from com.sun.star.awt.MessageBoxButtons import BUTTONS_OK
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウを取得。
     toolkit = docwindow.getToolkit()  # ツールキットを取得。
@@ -23,20 +23,20 @@ def macro():
     addControl("FixedText", {"PositionX": 10, "PositionY": 0, "Width": 180, "Height": 30, "Label": "~Selection", "VerticalAlign": BOTTOM})
     addControl("Edit", {"PositionX": 10, "PositionY": 40, "Width": 180, "Height": 30}, {"setFocus": None})
     addControl("Button", {"PositionX": 80, "PositionY": 130, "Width": 110, "Height": 35, "DefaultButton": True, "Label": "~Show Selection"}, {"setActionCommand": "Button1", "addActionListener": ButtonListener(dialog, docwindow)})
-    createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。 
+    createFrame = frameCreator(ctx, smgr, docframe)  # 親フレームを渡す。
     selectionchangelistener = SelectionChangeListener(dialog)
     docframe.getController().addSelectionChangeListener(selectionchangelistener)
-    frame = createFrame(dialog.Model.Name, dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。 
+    frame = createFrame(dialog.Model.Name, dialogwindow)  # 新しいフレーム名、そのコンテナウィンドウ。
     removeListeners = listenersRemover(docframe, frame, selectionchangelistener)
     closelistener = CloseListener(removeListeners)
     docframe.addCloseListener(closelistener)
     frame.addCloseListener(closelistener)
     dialog.setVisible(True)  # ダイアログを見えるようにする。
-def listenersRemover(docframe, frame, selectionchangelistener):    
+def listenersRemover(docframe, frame, selectionchangelistener):
     def removeListeners(closelistener):
-        frame.removeCloseListener(closelistener) 
+        frame.removeCloseListener(closelistener)
         docframe.removeCloseListener(closelistener)
-        docframe.getController().removeSelectionChangeListener(selectionchangelistener)   
+        docframe.getController().removeSelectionChangeListener(selectionchangelistener)
     return removeListeners
 class SelectionChangeListener(unohelper.Base, XSelectionChangeListener):
     def __init__(self, dialog):
@@ -47,24 +47,24 @@ class SelectionChangeListener(unohelper.Base, XSelectionChangeListener):
             self.flag = False
             selection = eventobject.Source.getSelection()
             if selection.supportsService("com.sun.star.text.TextRanges"):
-                if len(selection)>0:  
-                    rng = selection[0]  
+                if len(selection)>0:
+                    rng = selection[0]
                     txt = rng.getString()
                     self.dialog.getControl("Edit1").setText(txt)
             self.flag = True
     def disposing(self, eventobject):
-        pass  
+        pass
 class CloseListener(unohelper.Base, XCloseListener):
     def __init__(self, removeListeners):
         self.removeListeners = removeListeners
     def queryClosing(self, eventobject, getownership):
         pass
     def notifyClosing(self, eventobject):
-        self.removeListeners(self)  
+        self.removeListeners(self)
     def disposing(self, eventobject):
-        pass  
+        pass
 class ButtonListener(unohelper.Base, XActionListener):  # ボタンリスナー
-    def __init__(self, dialog, parentwindow):  # windowはメッセージボックス表示のため。  
+    def __init__(self, dialog, parentwindow):  # windowはメッセージボックス表示のため。
         self.dialog = dialog  # ダイアログを取得。
         self.parentwindow = parentwindow  # ダイアログウィンドウを取得。
     def actionPerformed(self, actionevent):
@@ -76,15 +76,15 @@ class ButtonListener(unohelper.Base, XActionListener):  # ボタンリスナー
             msgbox.execute()  # メッセージボックスを表示。
             msgbox.dispose()  # メッセージボックスを破棄。
     def disposing(self, eventobject):
-        pass  
-def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する関数を返す。親フレームを渡す。   
+        pass
+def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する関数を返す。親フレームを渡す。
     def createFrame(framename, containerwindow):  # 新しいフレーム名、そのコンテナウィンドウにするウィンドウを渡す。
         frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
-        frame.initialize(containerwindow)  # フレームにウィンドウを入れる。    
+        frame.initialize(containerwindow)  # フレームにウィンドウを入れる。
         frame.setName(framename)  # フレーム名を設定。
-        parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-        return frame        
-    return createFrame              
+        parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+        return frame
+    return createFrame
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
     dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
     dialog.setPosSize(dialogprops.pop("PositionX"), dialogprops.pop("PositionY"), dialogprops.pop("Width"), dialogprops.pop("Height"), POSSIZE)  # ダイアログモデルのプロパティで設定すると単位がMapAppになってしまうのでコントロールに設定。
@@ -100,7 +100,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         controlmodel = dialogmodel.createInstance("com.sun.star.awt.UnoControl{}Model".format(controltype))  # コントロールモデルを生成。UnoControlDialogElementサービスのためにUnoControlDialogModelからの作成が必要。
         values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
         if any(map(isinstance, values, [tuple]*len(values))):
-            [controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+            [setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
         else:
             controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
         control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。
@@ -119,7 +119,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
             name = "{}{}".format(controltype, i)
             flg = dialog.getControl(name)  # 同名のコントロールの有無を判断。
             i += 1
-        return name  
+        return name
     return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 
@@ -129,7 +129,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
     from functools import wraps
     import sys
     from com.sun.star.beans import PropertyValue
-    from com.sun.star.script.provider import XScriptContext  
+    from com.sun.star.script.provider import XScriptContext
     def connectOffice(func):  # funcの前後でOffice接続の処理
         @wraps(func)
         def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -162,7 +162,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
                 return self.ctx.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
             def getDocument(self):
                 return self.getDesktop().getCurrentComponent()
-        return ScriptContext(ctx)  
+        return ScriptContext(ctx)
     XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
     doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
     if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。

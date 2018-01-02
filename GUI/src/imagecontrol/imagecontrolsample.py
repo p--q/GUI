@@ -15,7 +15,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 		else:
 			currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
 			frame = currentframe.getCreator()
-		if frame:   
+		if frame:
 			import time
 			indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
 			maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
@@ -37,26 +37,26 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
+	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
 	dialog, addControl = dialogCreator(ctx, smgr, {"Name": "ImageControlSample", "PositionX": 102, "PositionY": 41, "Width": 230, "Height": 151, "Title": "Image Control Sample", "Step": 0, "TabIndex": 0, "Moveable": True})  # "Sizeable": Trueが効かない。
 	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 210, "Height": 17, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True})
 	pathsubstservice = smgr.createInstanceWithContext("com.sun.star.comp.framework.PathSubstitution", ctx)
 	uno_path = pathsubstservice.getSubstituteVariableValue("$(prog)")  # fileurlでprogramフォルダへのパスが返ってくる。
 	fileurl = "{}/intro.png".format(uno_path)  # 画像ファイルへのfileurl
-	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。 
+	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。
 	addControl("ImageControl", {"PositionX": 6, "PositionY": 29, "Width": 218, "Height": 76, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl})  # "ScaleImage": Trueで画像が歪む。
-	addControl("Edit", {"Name": "EditFilePath","PositionX": 6, "PositionY": 111, "Width": 193, "Height": 14, "Text": imageurl})  
+	addControl("Edit", {"Name": "EditFilePath","PositionX": 6, "PositionY": 111, "Width": 193, "Height": 14, "Text": imageurl})
 	addControl("Button", {"Name": "ButtonFilePick", "PositionX": 199, "PositionY": 111, "Width": 25, "Height": 14, "Label": "~Browse", "PushButtonType": 0}, {"addActionListener": ActionListener(ctx, smgr, dialog)})  # PushButtonTypeの値はEnumではエラーになる。
 	addControl("Button", {"PositionX": 90, "PositionY": 131, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
 	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。
 	# ノンモダルダイアログにするとき。
-# 	showModelessly(ctx, smgr, docframe, dialog)  
+# 	showModelessly(ctx, smgr, docframe, dialog)
 	# モダルダイアログにする。フレームに追加するとエラーになる。
 	dialog.execute()
-	dialog.dispose() 
+	dialog.dispose()
 class ActionListener(unohelper.Base, XActionListener):
 	def __init__(self, ctx, smgr, dialog):
 		filters = {'WordPerfect Graphics': '*.wpg', 'SVM - StarView Meta File': '*.svm', 'PSD - Adobe Photoshop': '*.psd', 'EMF - Enhanced Meta File': '*.emf', 'PCD - Photo CD Base16': '*.pcd', 'PCD - Photo CD Base': '*.pcd', 'SGF - StarWriter SGF': '*.sgf', 'PGM - Portable Graymap': '*.pgm', 'SVG - Scalable Vector Graphics': '*.svg;*.svgz', 'PPM - Portable Pixelmap': '*.ppm', 'XBM - X Bitmap': '*.xbm', 'PBM - Portable Bitmap': '*.pbm', 'RAS - Sun Raster Image': '*.ras', 'WMF - Windows Metafile': '*.wmf', 'PCD - Photo CD Base4': '*.pcd', 'TGA - Truevision Targa': '*.tga', 'GIF - Graphics Interchange': '*.gif', 'Corel Presentation Exchange': '*.cmx', 'Adobe/Macromedia Freehand': '*.fh;*.fh1;*.fh2;*.fh3;*.fh4;*.fh5;*.fh6;*.fh7;*.fh8;*.fh9;*.fh10;*.fh11', 'CGM - Computer Graphics Metafile': '*.cgm', 'XPM - X PixMap': '*.xpm', 'MET - OS/2 Metafile': '*.met', 'DXF - AutoCAD Interchange Format': '*.dxf', 'JPEG - Joint Photographic Experts Group': '*.jpg;*.jpeg;*.jfif;*.jif;*.jpe', 'TIFF - Tagged Image File Format': '*.tif;*.tiff', 'PNG - Portable Network Graphic': '*.png', 'PCT - Mac Pict': '*.pct;*.pict', 'EPS - Encapsulated PostScript': '*.eps', 'BMP - Windows Bitmap': '*.bmp', 'PCX - Zsoft Paintbrush': '*.pcx'}  # 画像フィルターの辞書。
@@ -72,14 +72,14 @@ class ActionListener(unohelper.Base, XActionListener):
 		filepicker.appendFilter(filterall, ";".join(filters.values()))  # すべての画像ファイルを表示させるフィルターを2番目に追加。
 		[filepicker.appendFilter(key, filters[key]) for key in sorted(filters.keys())]  # フィルターは追加された順に表示されるのでfiltersをキーでソートしてから追加している。
 		filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルター名を設定。
-		filepicker.setTitle("Insert Image")			
+		filepicker.setTitle("Insert Image")
 		self.filepicker = filepicker
 		self.workurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # Ubuntuではホームフォルダ、Windows10ではドキュメントフォルダのfileurlが返る。
 		self.editcontrol = dialog.getControl("EditFilePath")
 		self.imagecontrolmodel = dialog.getControl("ImageControl1").getModel()
-		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)  
+		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)
 #	 @enableRemoteDebugging
-	def actionPerformed(self, actionevent):	
+	def actionPerformed(self, actionevent):
 		dummy_control, dummy_controlmodel, name = eventSource(actionevent)
 		if name == "ButtonFilePick":
 			systempath = self.editcontrol.getText().strip()  # Editコントロールのテキストを取得。システム固有形式のパスが入っているはず。
@@ -96,20 +96,20 @@ class ActionListener(unohelper.Base, XActionListener):
 				if self.simplefileaccess.exists(fileurl):  # fileurlが実存するとき
 					self.imagecontrolmodel.setPropertyValue("ImageURL", fileurl)  # Imageコントロールに設定。
 					systempath = unohelper.fileUrlToSystemPath(fileurl)  # fileurlをシステム固有形式に変換。
-					self.editcontrol.setText(systempath)  # Editコントロールに表示。					
+					self.editcontrol.setText(systempath)  # Editコントロールに表示。
 	def disposing(self, eventobject):
-		pass		
+		pass
 def eventSource(event):  # イベントからコントロール、コントロールモデル、コントロール名を取得。
 	control = event.Source  # イベントを駆動したコントロールを取得。
 	controlmodel = control.getModel()  # コントロールモデルを取得。
-	name = controlmodel.getPropertyValue("Name")  # コントロール名を取得。	
-	return control, controlmodel, name	
+	name = controlmodel.getPropertyValue("Name")  # コントロール名を取得。
+	return control, controlmodel, name
 def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
 	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
+	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。
 	frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-	dialog.setVisible(True)  # ダイアログを見えるようにする。   
+	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+	dialog.setVisible(True)  # ダイアログを見えるようにする。
 	return frame  # フレームにリスナーをつけるときのためにフレームを返す。
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
 	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
@@ -140,7 +140,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 			for i, j in enumerate(items):  # 各Roadmapアイテムについて
 				item = controlmodel.createInstance()
 				item.setPropertyValues(("Label", "Enabled"), j)
-				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
+				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
 		if control is None:  # コントロールがまだインスタンス化されていないとき
@@ -159,7 +159,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		if props:
 			values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 			if any(map(isinstance, values, [tuple]*len(values))):
-				[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+				[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 			else:
 				controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		return controlmodel
@@ -178,7 +178,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	from functools import wraps
 	import sys
 	from com.sun.star.beans import PropertyValue
-	from com.sun.star.script.provider import XScriptContext  
+	from com.sun.star.script.provider import XScriptContext
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
 		def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -208,11 +208,11 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 				return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
-		return ScriptContext(ctx)  
+		return ScriptContext(ctx)
 	XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
 	if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
 		XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
 		while doc is None:  # ドキュメントのロード待ち。
 			doc = XSCRIPTCONTEXT.getDocument()
-	macro()	   
+	macro()

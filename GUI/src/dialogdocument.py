@@ -9,10 +9,10 @@ from com.sun.star.beans import PropertyValue
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
+	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
 	dialog, addControl = dialogCreator(ctx, smgr, {"Name": "Dialog1", "PositionX": 102, "PositionY": 41, "Width": 300, "Height": 400, "Title": "Document-Dialog", "Moveable": True, "TabIndex": 0})  # UnoControlDialogを生成、とそれにコントロールを使いする関数addControl。
 	addControl("FixedText", {"Name": "Headerlabel", "PositionX": 6, "PositionY": 6, "Width": 300, "Height": 8, "Label": "This code-sample demonstrates how to display an office document in a dialog window", "NoLabel": True})
 	addControl("Button", {"PositionX": 126, "PositionY": 370, "Width": 50, "Height": 14, "Label": "~Close dialog", "PushButtonType": 1})  # PushButtonTypeの値はEnumではエラーになる。
@@ -20,26 +20,26 @@ def macro():
 	dialogwindow = dialog.getPeer()  # ダイアログウィンドウ(=ピア）を取得。
 	subwindow =  createWindow(toolkit, SHOW + BORDER, {"PositionX": 40, "PositionY": 50, "Width": 420, "Height": 550, "ParentIndex": 1, "Parent": dialogwindow, "WindowServiceName": "dockingwindow", "Type": SIMPLE})  # ツールキットを使ってドキュメントウィンドウの上にウィンドウを作成する。3番目の引数サービス名はcom.sun.star.awt.WindowDescriptorで定義されている。
 	subframe = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	subframe.initialize(subwindow)  # フレームにコンテナウィンドウを入れる。  
+	subframe.initialize(subwindow)  # フレームにコンテナウィンドウを入れる。
 	nodes = PropertyValue(Name = "Preview", Value = True), PropertyValue(Name = "ReadOnly", Value = True)  # com.sun.star.document.MediaDescriptor
 	subframe.loadComponentFromURL("private:factory/swriter", "_self", 2, nodes) # フレームのコンポーネントウィンドウにWriterドキュメントをロード。
 	# ノンモダルダイアログにするとき。
-#	 showModelessly(ctx, smgr, docframe, dialog)  
+#	 showModelessly(ctx, smgr, docframe, dialog)
 	# モダルダイアログにする。フレームに追加するとエラーになる。
-	dialog.execute()  
-	dialog.dispose()   
+	dialog.execute()
+	dialog.dispose()
 def createWindow(toolkit, attr, props):  # ウィンドウタイトルは変更できない。attrはcom.sun.star.awt.WindowAttributeの和。propsはPositionX, PositionY, Width, Height, ParentIndex, Parent, WindowServiceName, Type。
 	aRect = Rectangle(X=props.pop("PositionX"), Y=props.pop("PositionY"), Width=props.pop("Width"), Height=props.pop("Height"))
 	d = WindowDescriptor(Bounds=aRect, WindowAttributes=attr)
 	for key, val in props.items():
 		setattr(d, key, val)
-	return toolkit.createWindow(d)  # ウィンドウピアを返す。 
+	return toolkit.createWindow(d)  # ウィンドウピアを返す。
 def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
 	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
+	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。
 	frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-	dialog.setVisible(True)  # ダイアログを見えるようにする。   
+	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+	dialog.setVisible(True)  # ダイアログを見えるようにする。
 	return frame  # フレームにリスナーをつけるときのためにフレームを返す。
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
 	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
@@ -69,7 +69,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 			for i, j in enumerate(items):  # 各Roadmapアイテムについて
 				item = controlmodel.createInstance()
 				item.setPropertyValues(("Label", "Enabled"), j)
-				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
+				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
@@ -86,7 +86,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		if props:
 			values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 			if any(map(isinstance, values, [tuple]*len(values))):
-				[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+				[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 			else:
 				controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		return controlmodel
@@ -105,7 +105,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	from functools import wraps
 	import sys
 #	 from com.sun.star.beans import PropertyValue
-	from com.sun.star.script.provider import XScriptContext  
+	from com.sun.star.script.provider import XScriptContext
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
 		def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -135,7 +135,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 				return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
-		return ScriptContext(ctx)  
+		return ScriptContext(ctx)
 	XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
 	if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
