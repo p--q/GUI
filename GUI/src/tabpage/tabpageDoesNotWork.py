@@ -10,7 +10,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 		else:
 			currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
 			frame = currentframe.getCreator()
-		if frame:   
+		if frame:
 			import time
 			indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
 			maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
@@ -32,10 +32,10 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
+	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
 	dialog, dummy_addControl = dialogCreator(ctx, smgr, {"PositionX": 102, "PositionY": 41, "Width": 380, "Height": 380, "Title": "LibreOffice", "Name": "MyTestDialog", "Step": 0, "Moveable": True})  # "TabIndex": 0
 	dialogmodel = dialog.getModel()  # ダイアログモデルを取得。
 	tabpagecontainermodel = dialogmodel.createInstance("com.sun.star.awt.tab.UnoControlTabPageContainerModel")  # タブページコンテナモデルをインスタンス化。
@@ -48,16 +48,16 @@ def macro():
 # 	tabpagecontainer.ActiveTabPageID = 1  # タブページ1をアクティベートする。ここでunsatisfied query for interface of type com.sun.star.awt.tab.XTabPageContainer!
 	dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。Stepを使うときはRoadmap以外のコントロールが追加された後にピアを作成しないとStepが重なって表示される。
 	# ノンモダルダイアログにするとき。
-# 	showModelessly(ctx, smgr, docframe, dialog)  
+# 	showModelessly(ctx, smgr, docframe, dialog)
 	# モダルダイアログにする。フレームに追加するとエラーになる。
-	dialog.execute()  
-	dialog.dispose()	
+	dialog.execute()
+	dialog.dispose()
 def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
 	frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。	
+	frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。
 	frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-	dialog.setVisible(True)  # ダイアログを見えるようにする。   
+	parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+	dialog.setVisible(True)  # ダイアログを見えるようにする。
 	return frame  # フレームにリスナーをつけるときのためにフレームを返す。
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
 	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
@@ -88,7 +88,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 			for i, j in enumerate(items):  # 各Roadmapアイテムについて
 				item = controlmodel.createInstance()
 				item.setPropertyValues(("Label", "Enabled"), j)
-				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される	   
+				controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される
 			if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
 				controlmodel.setPropertyValue("CurrentItemID", currentitemid)
 		if control is None:  # コントロールがまだインスタンス化されていないとき
@@ -107,7 +107,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		if props:
 			values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 			if any(map(isinstance, values, [tuple]*len(values))):
-				[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+				[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 			else:
 				controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		return controlmodel
@@ -126,7 +126,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	from functools import wraps
 	import sys
 	from com.sun.star.beans import PropertyValue
-	from com.sun.star.script.provider import XScriptContext  
+	from com.sun.star.script.provider import XScriptContext
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
 		def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -156,11 +156,11 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 				return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
-		return ScriptContext(ctx)  
+		return ScriptContext(ctx)
 	XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
 	if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
 		XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
 		while doc is None:  # ドキュメントのロード待ち。
 			doc = XSCRIPTCONTEXT.getDocument()
-	macro()	   
+	macro()

@@ -20,7 +20,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 		else:
 			currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
 			frame = currentframe.getCreator()
-		if frame:   
+		if frame:
 			import time
 			indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
 			maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
@@ -42,7 +42,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
 	toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
@@ -51,7 +51,7 @@ def macro():
 	frame = taskcreator.createInstanceWithArguments(args)  # コンテナウィンドウ付きの新しいフレームの取得。
 	window = frame.getContainerWindow()  # 新しいコンテナウィンドウを新しいフレームから取得。
 	frame.setTitle("Image Control Sample")  # フレームのタイトルを設定。
-	docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。	
+	docframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
 	actionlistener = ActionListener(ctx, smgr, frame)  # ボタンにつけるリスナー。コントロールコンテナはコントロールが追加されてから取得する。
 	margin_horizontal = 20  # 水平マージン
 	margin_vertical = 13  # 垂直マージン
@@ -69,30 +69,30 @@ def macro():
 	pathsubstservice = smgr.createInstanceWithContext("com.sun.star.comp.framework.PathSubstitution", ctx)
 	uno_path = pathsubstservice.getSubstituteVariableValue("$(prog)")  # fileurlでprogramフォルダへのパスが返ってくる。
 	fileurl = "{}/intro.png".format(uno_path)  # 画像ファイルへのfileurl
-	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。 	
+	imageurl = os.path.normpath(unohelper.fileUrlToSystemPath(fileurl))  # fileurlをシステム固有のパスに変換して正規化する。
 	controlcontainer, addControl = controlcontainerCreator(ctx, smgr, {"PositionX": 0, "PositionY": 0, "Width": window_width, "Height": window_height, "BackgroundColor": 0xF0F0F0, "PosSize": POSSIZE})  # ウィンドウに表示させるコントロールコンテナを取得。BackgroundColor: -1は不可。
 	fixedtext1 = addControl("FixedText", {"PositionX": margin_horizontal, "PositionY": margin_vertical, "Width": window_width-margin_horizontal*2, "Height": headerlabel_height, "Label": "This code-sample demonstrates how to create an ImageControlSample within a dialog.", "MultiLine": True, "PosSize": POSSIZE})
 	imagecontrol1 = addControl("ImageControl", {"PositionX": margin_horizontal, "PositionY": margin_vertical*2+headerlabel_height, "Width": window_width-margin_horizontal*2, "Height": window_height-margin_vertical*5-line_height*2-headerlabel_height, "Border": 0, "ScaleImage": True, "ScaleMode": ISOTROPIC, "ImageURL": fileurl, "PosSize": POSSIZE})  # "ScaleImage": Trueで画像が歪む。
-	edit1 = addControl("Edit", {"PositionX": margin_horizontal+radiobutton_width+2, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-radiobutton_width-buttonfilepick_width-4, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})  
+	edit1 = addControl("Edit", {"PositionX": margin_horizontal+radiobutton_width+2, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": window_width-margin_horizontal*2-radiobutton_width-buttonfilepick_width-4, "Height": line_height, "Text": imageurl, "PosSize": POSSIZE})
 	button1 = addControl("Button", {"PositionX": window_width-margin_horizontal-buttonfilepick_width, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": buttonfilepick_width, "Height": line_height, "Label": "~Browse", "PosSize": POSSIZE}, {"setActionCommand": "filepick" ,"addActionListener": actionlistener})  # PushButtonTypeは動かない。
-	radiobutton1 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": radiobutton_width, "Height": line_height, "Label": "~No Scaling", "PosSize": POSSIZE}, {"addItemListener": itemlistener})	 
-	radiobutton2 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height*2+(margin_vertical*2+line_height*2)/3, "Width": radiobutton_width, "Height": line_height, "Label": "~ISOTROPIC", "State": 1, "PosSize": POSSIZE}, {"addItemListener": itemlistener})	  
-	radiobutton3 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height+(margin_vertical*2+line_height*2)/3, "Width": radiobutton_width, "Height": line_height, "Label": "~ANISOTROPIC", "PosSize": POSSIZE}, {"addItemListener": itemlistener})	  
+	radiobutton1 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height*2, "Width": radiobutton_width, "Height": line_height, "Label": "~No Scaling", "PosSize": POSSIZE}, {"addItemListener": itemlistener})
+	radiobutton2 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height*2+(margin_vertical*2+line_height*2)/3, "Width": radiobutton_width, "Height": line_height, "Label": "~ISOTROPIC", "State": 1, "PosSize": POSSIZE}, {"addItemListener": itemlistener})
+	radiobutton3 = addControl("RadioButton", {"PositionX": margin_horizontal, "PositionY": window_height-margin_vertical*2-line_height+(margin_vertical*2+line_height*2)/3, "Width": radiobutton_width, "Height": line_height, "Label": "~ANISOTROPIC", "PosSize": POSSIZE}, {"addItemListener": itemlistener})
 	button2 = addControl("Button", {"PositionX": window_width-margin_horizontal-buttonclose_width, "PositionY": window_height-margin_vertical-line_height, "Width": buttonclose_width, "Height": line_height, "Label": "~Close dialog", "PosSize": POSSIZE}, {"setActionCommand": "close" ,"addActionListener": actionlistener})  # PushButtonTypeは動かない。
 	actionlistener.setControl(imagecontrol1, edit1)  # getControl()で追加するコントロールが追加されてからコントロールコンテナを取得する。
 	radiobuttons = radiobutton1, radiobutton2, radiobutton3
 	itemlistener.setControl(imagecontrol1, radiobuttons)
-	controlcontainer.createPeer(toolkit, window)  # ウィンドウにコントロールを描画。 
+	controlcontainer.createPeer(toolkit, window)  # ウィンドウにコントロールを描画。
 	controlcontainer.setVisible(True)  # コントロールの表示。
 	window.setVisible(True)  # ウィンドウの表示。
 	minsizes = minwidth, minheight  # コントロールが潰れてしまうと次のリサイズの計算がおかしくなるので下限値を設定する。
 	controls = controlcontainer, fixedtext1, imagecontrol1, edit1, button1, button2, radiobutton1, radiobutton2, radiobutton3
 	window.addWindowListener(WindowListener(controls, minsizes))  # setVisible(True)でも呼び出されるので、その後でリスナーを追加する。
-class ItemListener(unohelper.Base, XItemListener): 
+class ItemListener(unohelper.Base, XItemListener):
 	def __init__(self, toolkit, window, imagecontrolmargins):
 		workarea = toolkit.getWorkArea()  # ディスプレイサイズの取得。ただしprimary displayだけ。IsMaximized()の大きさは同じプロセスではうまく取得できない。
 		maxwidth = workarea.Width - 30  # ランチャーの幅を30pxと見積もる。
-		maxheight = workarea.Height - 60  # ツールバーの高さを60pxと見積もる。		
+		maxheight = workarea.Height - 60  # ツールバーの高さを60pxと見積もる。
 		self.window = window
 		margin_width, margin_height = imagecontrolmargins
 		self.consts = margin_width, margin_height, maxwidth, maxheight
@@ -120,7 +120,7 @@ class ItemListener(unohelper.Base, XItemListener):
 			window_height = window_height if window_height<maxheight else maxheight
 			window.setPosSize(0, 0, window_width, window_height, SIZE)  # ウィンドウの大きさをイメージコントロールのサイズに合わす。
 	def disposing(self, eventobject):
-		pass	
+		pass
 class ActionListener(unohelper.Base, XActionListener):
 	def __init__(self, ctx, smgr, frame):
 		self.frame = frame
@@ -137,15 +137,15 @@ class ActionListener(unohelper.Base, XActionListener):
 		filepicker.appendFilter(filterall, ";".join(filters.values()))  # すべての画像ファイルを表示させるフィルターを2番目に追加。
 		[filepicker.appendFilter(key, filters[key]) for key in sorted(filters.keys())]  # フィルターは追加された順に表示されるのでfiltersをキーでソートしてから追加している。
 		filepicker.setCurrentFilter(filterall)  # デフォルトで表示するフィルター名を設定。
-		filepicker.setTitle("Insert Image")			
+		filepicker.setTitle("Insert Image")
 		self.filepicker = filepicker
 		self.workurl = ctx.getByName('/singletons/com.sun.star.util.thePathSettings').getPropertyValue("Work")  # Ubuntuではホームフォルダ、Windows10ではドキュメントフォルダのfileurlが返る。
-		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)  
+		self.simplefileaccess = smgr.createInstanceWithContext("com.sun.star.ucb.SimpleFileAccess", ctx)
 	def setControl(self, imagecontrol, edit):
-		self.imagecontrolmodel = imagecontrol.getModel()	
+		self.imagecontrolmodel = imagecontrol.getModel()
 		self.editcontrol = edit
 # 	@enableRemoteDebugging
-	def actionPerformed(self, actionevent):	
+	def actionPerformed(self, actionevent):
 		cmd = actionevent.ActionCommand
 		if cmd == "filepick":
 			systempath = self.editcontrol.getText().strip()  # Editコントロールのテキストを取得。システム固有形式のパスが入っているはず。
@@ -161,11 +161,11 @@ class ActionListener(unohelper.Base, XActionListener):
 				if self.simplefileaccess.exists(fileurl):  # fileurlが実存するとき
 					self.imagecontrolmodel.setPropertyValue("ImageURL", fileurl)  # Imageコントロールに設定。
 					systempath = unohelper.fileUrlToSystemPath(fileurl)  # fileurlをシステム固有形式に変換。
-					self.editcontrol.setText(systempath)  # Editコントロールに表示。		
+					self.editcontrol.setText(systempath)  # Editコントロールに表示。
 		elif cmd == "close":
-			self.frame.close(True)					
+			self.frame.close(True)
 	def disposing(self, eventobject):
-		pass	
+		pass
 class WindowListener(unohelper.Base, XWindowListener):
 	def __init__(self, controls, minsizes):
 		rectangle = controls[0].getPosSize()  # コントロールコンテナの位置と大きさを取得。なぜかwindow.getPosSize()では取得できない。
@@ -173,13 +173,13 @@ class WindowListener(unohelper.Base, XWindowListener):
 		self.oldheight = rectangle.Height  # 変更前の高さを取得しておく。
 		self.controls = controls
 		self.minsizes = minsizes
-# 	@enableRemoteDebugging		
+# 	@enableRemoteDebugging
 	def windowResized(self, windowevent):  # 変化分で計算する。コントロールが表示されないほど小さくされると次から表示がおかしくなる。
 		minwidth, minheight = self.minsizes  # サイズ下限を取得。
 		newwidth = windowevent.Width if windowevent.Width>minwidth else minwidth  # 変更後のコントロールコンテナの幅を取得。サイズ下限より小さい時は下限値とする。
 		newheight = windowevent.Height if windowevent.Height>minheight else minheight  # 変更後のコントロールコンテナの高さを取得。サイズ下限より小さい時は下限値とする。
 		self.diff_width = newwidth - self.oldwidth  # 幅変化分
-		self.diff_height = newheight -self.oldheight  # 高さ変化分		
+		self.diff_height = newheight -self.oldheight  # 高さ変化分
 		controlcontainer, fixedtext1, imagecontrol1, edit1, button1, button2, radiobutton1, radiobutton2, radiobutton3 = self.controls  # 再計算するコントロールを取得。
 		controlcontainer.setPosSize(0, 0, newwidth, newheight, SIZE)  # Flagsで変更する値のみ指定。変更しない値は0(でもなんでもよいはず)。
 		self._applyDiff(fixedtext1, WIDTH)
@@ -191,10 +191,10 @@ class WindowListener(unohelper.Base, XWindowListener):
 		self._applyDiff(button1, POS)
 		self._applyDiff(button2, POS)
 		self.oldwidth = newwidth  # 次の変更前の幅として取得。
-		self.oldheight = newheight  # 次の変更前の高さとして取得。		
+		self.oldheight = newheight  # 次の変更前の高さとして取得。
 	def _applyDiff(self, control, possize):  # 第2引数でウィンドウサイズの変化分のみ適用するPosSizeを指定。
 		rectangle = control.getPosSize()  # 変更前のコントロールの位置大きさを取得。
-		control.setPosSize(rectangle.X+self.diff_width, rectangle.Y+self.diff_height, rectangle.Width+self.diff_width, rectangle.Height+self.diff_height, possize)		
+		control.setPosSize(rectangle.X+self.diff_width, rectangle.Y+self.diff_height, rectangle.Width+self.diff_width, rectangle.Height+self.diff_height, possize)
 	def windowMoved(self, windowevent):
 		pass
 	def windowShown(self, eventobject):
@@ -202,8 +202,8 @@ class WindowListener(unohelper.Base, XWindowListener):
 	def windowHidden(self, eventobject):
 		pass
 	def disposing(self, eventobject):
-		pass	
-def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコンテナと、それにコントロールを追加する関数を返す。まずコントロールコンテナモデルのプロパティを取得。UnoControlDialogElementサービスのプロパティは使えない。propsのキーにPosSize、値にPOSSIZEが必要。   
+		pass
+def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコンテナと、それにコントロールを追加する関数を返す。まずコントロールコンテナモデルのプロパティを取得。UnoControlDialogElementサービスのプロパティは使えない。propsのキーにPosSize、値にPOSSIZEが必要。
 	container = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainer", ctx)  # コントロールコンテナの生成。
 	container.setPosSize(containerprops.pop("PositionX"), containerprops.pop("PositionY"), containerprops.pop("Width"), containerprops.pop("Height"), containerprops.pop("PosSize"))
 	containermodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlContainerModel", ctx)  # コンテナモデルの生成。
@@ -215,7 +215,7 @@ def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコ
 		control = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}".format(controltype), ctx)  # コントロールを生成。
 		control.setPosSize(props.pop("PositionX"), props.pop("PositionY"), props.pop("Width"), props.pop("Height"), props.pop("PosSize"))  # ピクセルで指定するために位置座標と大きさだけコントロールで設定。
 		controlmodel = _createControlModel(controltype, props)  # コントロールモデルの生成。
-		control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。		
+		control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。
 		container.addControl(name, control)  # コントロールをコントロールコンテナに追加。
 		if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
 			control = container.getControl(name)  # コントロールコンテナに追加された後のコントロールを取得。
@@ -226,11 +226,11 @@ def controlcontainerCreator(ctx, smgr, containerprops):  # コントロールコ
 					getattr(control, key)(val)
 		return control  # 追加したコントロールを返す。
 	def _createControlModel(controltype, props):  # コントロールモデルの生成。
-		controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。	
+		controlmodel = smgr.createInstanceWithContext("com.sun.star.awt.UnoControl{}Model".format(controltype), ctx)  # コントロールモデルを生成。
 		if props:
 			values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 			if any(map(isinstance, values, [tuple]*len(values))):
-				[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+				[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 			else:
 				controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		return controlmodel
@@ -249,7 +249,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	from functools import wraps
 	import sys
 	from com.sun.star.beans import PropertyValue
-	from com.sun.star.script.provider import XScriptContext  
+	from com.sun.star.script.provider import XScriptContext
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
 		def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -279,11 +279,11 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 				return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
-		return ScriptContext(ctx)  
+		return ScriptContext(ctx)
 	XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
 	if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
 		XSCRIPTCONTEXT.getDesktop().loadComponentFromURL("private:factory/swriter", "_blank", 0, ())  # Writerのドキュメントを開く。
 		while doc is None:  # ドキュメントのロード待ち。
 			doc = XSCRIPTCONTEXT.getDocument()
-	macro()	   
+	macro()

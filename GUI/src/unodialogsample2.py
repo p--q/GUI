@@ -14,7 +14,7 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
         else:
             currentframe = XSCRIPTCONTEXT.getDesktop().getCurrentFrame()  # モードレスダイアログのときはドキュメントが取得できないので、モードレスダイアログのフレームからCreatorのフレームを取得する。
             frame = currentframe.getCreator()
-        if frame:   
+        if frame:
             import time
             indicator = frame.createStatusIndicator()  # フレームからステータスバーを取得する。
             maxrange = 2  # ステータスバーに表示するプログレスバーの目盛りの最大値。2秒ロスするが他に適当な告知手段が思いつかない。
@@ -36,10 +36,10 @@ def enableRemoteDebugging(func):  # デバッグサーバーに接続したい�
 def macro():
     ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
     smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。   
+    doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
     docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
     docwindow = docframe.getContainerWindow()  # ドキュメントのウィンドウ(コンテナウィンドウ=ピア)を取得。
-    toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。  
+    toolkit = docwindow.getToolkit()  # ピアからツールキットを取得。
     controlmargin = 6  # ロードマップコントロール以外のコントロールのマージン。
     dialogwidth, dialogheight = 250, 140  # ダイアログの幅と高さ
     roadmapwidth = 80  # ロードマップの幅。
@@ -59,10 +59,10 @@ def macro():
     interfacenames = tuple(i.typeName for i in doc.getTypes())  # ドキュメントモデルのインターフェイス一覧を取得。 getTypename()メソッドはないと言われる。
     methodnames = tuple(i.getName() for i in introspectionaccess.getMethods(MethodConcept_ALL))  # ドキュメントモデルのメソッド一覧を取得。
     propertynames = tuple(i.Name for i in introspectionaccess.getProperties(PropertyConcept_ATTRIBUTES + PropertyConcept_PROPERTYSET))  # ドキュメントモデルのプロパティ一覧を取得。
-    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 2, "StringItemList": supportedservicenames})  # Step2で表示させるコントロール。     
-    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 3, "StringItemList": interfacenames})  # Step3で表示させるコントロール。     
-    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 4, "StringItemList": methodnames})  # Step4で表示させるコントロール。     
-    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 5, "StringItemList": propertynames})  # Step5で表示させるコントロール。     
+    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 2, "StringItemList": supportedservicenames})  # Step2で表示させるコントロール。
+    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 3, "StringItemList": interfacenames})  # Step3で表示させるコントロール。
+    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 4, "StringItemList": methodnames})  # Step4で表示させるコントロール。
+    addControl("ListBox", {"PositionX": controlposx, "PositionY": controlmargin, "Width": controlwidth, "Height": listboxheight, "Dropdown": False, "ReadOnly": True, "Step": 5, "StringItemList": propertynames})  # Step5で表示させるコントロール。
     addControl("Button", {"PositionX": buttonposx, "PositionY": buttonposy, "Width": buttonwidth, "Height": buttonheight, "Label": "~Close", "PushButtonType": 1})  # ダイアログを閉じるボタンのコントロール。PushButtonTypeの値はEnumではエラーになる。
     addControl("FixedLine", {"PositionX": 0, "PositionY": buttonposy - controlmargin - 4, "Width": dialogwidth, "Height": 8, "Orientation": 0})  # 水平線の高さをロードマップの下縁の半分に食い込ませる。
     dialog.createPeer(toolkit, docwindow)  # ダイアログを描画。親ウィンドウを渡す。ノンモダルダイアログのときはNone(デスクトップ)ではフリーズする。Stepを使うときはRoadmap以外のコントロールが追加された後にピアを作成しないとStepが重なって表示される。
@@ -73,11 +73,11 @@ def macro():
             ("Properties", True)  # この順に0からIDがふられる。この順に表示される。
     addControl("Roadmap", {"PositionX": 0, "PositionY": 0, "Width": roadmapwidth, "Height": dialogheight - buttonheight - 2*controlmargin, "Complete": True, "CurrentItemID": 0, "Text": "Steps", "Items": items}, {"addItemListener": ItemListener(dialog)})  # Roadmapコントロールはダイアログウィンドウを描画してからでないと項目が表示されない。
     # ノンモダルダイアログにするとき。オートメーションでは動かないリスナーがある。
-#     showModelessly(ctx, smgr, docframe, dialog)  
+#     showModelessly(ctx, smgr, docframe, dialog)
     # モダルダイアログにする。フレームに追加するとエラーになる。
-    dialog.execute()  
-    dialog.dispose()   
-class ItemListener(unohelper.Base, XItemListener): 
+    dialog.execute()
+    dialog.dispose()
+class ItemListener(unohelper.Base, XItemListener):
     def __init__(self, dialog):
         self.dialogmodel = dialog.getModel()
 #     @enableRemoteDebugging
@@ -89,18 +89,18 @@ class ItemListener(unohelper.Base, XItemListener):
             if itemid != step:  # ItemIdが現在のStepと異なるとき。
                 self.dialogmodel.setPropertyValue("Step", itemid)  # StepをItemIdにする。
     def disposing(self, eventobject):
-        pass 
+        pass
 def eventSource(event):  # イベントからコントロール、コントロールモデル、コントロール名を取得。
     control = event.Source  # イベントを駆動したコントロールを取得。
     controlmodel = control.getModel()  # コントロールモデルを取得。
-    name = controlmodel.getPropertyValue("Name")  # コントロール名を取得。    
-    return control, controlmodel, name    
+    name = controlmodel.getPropertyValue("Name")  # コントロール名を取得。
+    return control, controlmodel, name
 def showModelessly(ctx, smgr, parentframe, dialog):  # ノンモダルダイアログにする。オートメーションではリスナー動かない。ノンモダルダイアログではフレームに追加しないと閉じるボタンが使えない。
     frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しいフレームを生成。
-    frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。    
+    frame.initialize(dialog.getPeer())  # フレームにコンテナウィンドウを入れる。
     frame.setName(dialog.getModel().getPropertyValue("Name"))  # フレーム名をダイアログモデル名から取得（一致させる必要性はない）して設定。
-    parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-    dialog.setVisible(True)  # ダイアログを見えるようにする。   
+    parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+    dialog.setVisible(True)  # ダイアログを見えるようにする。
     return frame  # フレームにリスナーをつけるときのためにフレームを返す。
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
     dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
@@ -130,7 +130,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
             for i, j in enumerate(items):  # 各Roadmapアイテムについて
                 item = controlmodel.createInstance()
                 item.setPropertyValues(("Label", "Enabled"), j)
-                controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される       
+                controlmodel.insertByIndex(i, item)  # IDは0から整数が自動追加される
             if currentitemid is not None:  #Roadmapアイテムを追加するとそれがCurrentItemIDになるので、Roadmapアイテムを追加してからCurrentIDを設定する。
                 controlmodel.setPropertyValue("CurrentItemID", currentitemid)
         if attrs is not None:  # Dialogに追加したあとでないと各コントロールへの属性は追加できない。
@@ -147,7 +147,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
         if props:
             values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
             if any(map(isinstance, values, [tuple]*len(values))):
-                [controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+                [setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
             else:
                 controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
         return controlmodel
@@ -166,7 +166,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
     from functools import wraps
     import sys
     from com.sun.star.beans import PropertyValue
-    from com.sun.star.script.provider import XScriptContext  
+    from com.sun.star.script.provider import XScriptContext
     def connectOffice(func):  # funcの前後でOffice接続の処理
         @wraps(func)
         def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -196,7 +196,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
                 return ctx.getByName('/singletons/com.sun.star.frame.theDesktop')  # com.sun.star.frame.Desktopはdeprecatedになっている。
             def getDocument(self):
                 return self.getDesktop().getCurrentComponent()
-        return ScriptContext(ctx)  
+        return ScriptContext(ctx)
     XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
     doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
     if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
