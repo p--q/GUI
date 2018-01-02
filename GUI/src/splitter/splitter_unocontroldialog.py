@@ -12,7 +12,7 @@ from com.sun.star.awt import WindowDescriptor
 def macro():
 	ctx = XSCRIPTCONTEXT.getComponentContext()  # コンポーネントコンテクストの取得。
 	smgr = ctx.getServiceManager()  # サービスマネージャーの取得。
-	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。 
+	doc = XSCRIPTCONTEXT.getDocument()  # マクロを起動した時のドキュメントのモデルを取得。
 	docframe = doc.getCurrentController().getFrame()  # モデル→コントローラ→フレーム、でドキュメントのフレームを取得。
 	docwindow = docframe.getContainerWindow()
 	toolkit = docwindow.getToolkit()
@@ -56,14 +56,14 @@ def createWindow(toolkit, props, attrs):
 		newwindow.setProperty(key, val)
 	for key, val in attrs.items():
 		getattr(newwindow, key)(val)
-def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する関数を返す。親フレームを渡す。   
+def frameCreator(ctx, smgr, parentframe): # 新しいフレームを追加する関数を返す。親フレームを渡す。
 	def createFrame(framename, containerwindow):  # 新しいフレーム名、そのコンテナウィンドウにするウィンドウを渡す。
 		frame = smgr.createInstanceWithContext("com.sun.star.frame.Frame", ctx)  # 新しく作成したウィンドウを入れるためのフレームを作成。
-		frame.initialize(containerwindow)  # フレームにウィンドウを入れる。	
+		frame.initialize(containerwindow)  # フレームにウィンドウを入れる。
 		frame.setName(framename)  # フレーム名を設定。
-		parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。 
-		return frame		
-	return createFrame			   
+		parentframe.getFrames().append(frame)  # 新しく作ったフレームを既存のフレームの階層に追加する。
+		return frame
+	return createFrame
 def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコントロールを追加する関数を返す。まずダイアログモデルのプロパティを取得。
 	dialog = smgr.createInstanceWithContext("com.sun.star.awt.UnoControlDialog", ctx)  # ダイアログの生成。
 	dialog.setPosSize(dialogprops.pop("PositionX"), dialogprops.pop("PositionY"), dialogprops.pop("Width"), dialogprops.pop("Height"), POSSIZE)  # ダイアログモデルのプロパティで設定すると単位がMapAppになってしまうのでコントロールに設定。
@@ -79,7 +79,7 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 		controlmodel = dialogmodel.createInstance("com.sun.star.awt.UnoControl{}Model".format(controltype))  # コントロールモデルを生成。UnoControlDialogElementサービスのためにUnoControlDialogModelからの作成が必要。
 		values = props.values()  # プロパティの値がタプルの時にsetProperties()でエラーが出るのでその対応が必要。
 		if any(map(isinstance, values, [tuple]*len(values))):
-			[controlmodel.setPropertyValue(key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
+			[setattr(controlmodel, key, val) for key, val in props.items()]  # valはリストでもタプルでも対応可能。XMultiPropertySetのsetPropertyValues()では[]anyと判断されてタプルも使えない。
 		else:
 			controlmodel.setPropertyValues(tuple(props.keys()), tuple(values))
 		control.setModel(controlmodel)  # コントロールにコントロールモデルを設定。
@@ -98,8 +98,8 @@ def dialogCreator(ctx, smgr, dialogprops):  # ダイアログと、それにコ�
 			name = "{}{}".format(controltype, i)
 			flg = dialog.getControl(name)  # 同名のコントロールの有無を判断。
 			i += 1
-		return name  
-	return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。  
+		return name
+	return dialog, addControl  # ダイアログとそのダイアログにコントロールを追加する関数を返す。
 g_exportedScripts = macro, #マクロセレクターに限定表示させる関数をタプルで指定。
 
 
@@ -109,7 +109,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 	from functools import wraps
 	import sys
 	from com.sun.star.beans import PropertyValue
-	from com.sun.star.script.provider import XScriptContext  
+	from com.sun.star.script.provider import XScriptContext
 	def connectOffice(func):  # funcの前後でOffice接続の処理
 		@wraps(func)
 		def wrapper():  # LibreOfficeをバックグラウンドで起動してコンポーネントテクストとサービスマネジャーを取得する。
@@ -142,7 +142,7 @@ if __name__ == "__main__":  # オートメーションで実行するとき
 				return self.ctx.getServiceManager().createInstanceWithContext("com.sun.star.frame.Desktop", self.ctx)
 			def getDocument(self):
 				return self.getDesktop().getCurrentComponent()
-		return ScriptContext(ctx)  
+		return ScriptContext(ctx)
 	XSCRIPTCONTEXT = main()  # XSCRIPTCONTEXTを取得。
 	doc = XSCRIPTCONTEXT.getDocument()  # ドキュメントを取得。
 	if not hasattr(doc, "getCurrentController"):  # ドキュメント以外のとき。スタート画面も除外。
