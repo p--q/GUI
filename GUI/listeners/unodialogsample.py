@@ -100,13 +100,13 @@ def macro():
 	dialogwindow = dialog.getPeer()  # ダイアログウィンドウ(=ピア）を取得。
 	textlistener.setPeer(dialogwindow)  # ダイアログのピアをリスナーに渡す。
 	# ノンモダルダイアログにするとき。
-	dialogframe = showModelessly(ctx, smgr, docframe, dialog)
+# 	dialogframe = showModelessly(ctx, smgr, docframe, dialog)
 # 	dialogframe.addCloseListener(CloseListener2(dirpath, "dialogframe_closelistener"))
 # 	dialogframe.addTitleChangeListener(TitleChangeListener(dirpath, "dialogframe_titlechangelistener"))  # FrameActionListener 
 # 	dialogframe.addFrameActionListener(FrameActionListener(dirpath, "dialogframe_frameactionlistener"))  # TitleChangeListener	
 	# モダルダイアログにする。フレームに追加するとエラーになる。
-# 	dialog.execute()
-# 	dialog.dispose()
+	dialog.execute()
+	dialog.dispose()
 class TitleChangeListener(unohelper.Base, XTitleChangeListener):
 	def __init__(self, dirpath, name):
 		self.args = dirpath, name	
