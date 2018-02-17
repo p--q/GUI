@@ -56,8 +56,8 @@ def macro():  # オートメーションでは発火しないリスナーがあ�
             ("Second Radio Entry", RADIOCHECK+AUTOCHECK),\
             ("Third Radio Entry", RADIOCHECK+AUTOCHECK),\
             (),\
-            ("Fifth Entry", AUTOCHECK),\
             ("Fourth Entry", AUTOCHECK),\
+            ("Fifth Entry", AUTOCHECK),\
             ("Sixth Entry", 0),\
             ("Close Dialog", 0)  # ポップアップメニューの項目。タプルのインデックスが位置に相当。IDはインデックス+1。
     popupmenu = createPopupMenu(ctx, smgr, items)  # ポップメニューを取得。
@@ -85,9 +85,9 @@ def createPopupMenu(ctx, smgr, items):  # ポップメニューを返す。items
     popupmenu = smgr.createInstanceWithContext("com.sun.star.awt.PopupMenu", ctx)  # ポップアップメニューをインスタンス化。
     for i, item in enumerate(items, start=1):  # 1から始まるiをIDにする。
         if item:  # ラベルとスタイルのタプルが取得できた時。
-            popupmenu.insertItem(i, *item, i-1)  # ItemId, Text, ItemSytle, ItemPos。
+            popupmenu.insertItem(i, *item, i-1)  # ItemId, Text, ItemSytle, ItemPos。ItemIdは1から始まり区切り線は含まない。ItemPosは0から始まり区切り線を含む。
         else:
-            popupmenu.insertSeparator(i)  # ItemPos。セパレーターのときは位置を設定するだけ。    
+            popupmenu.insertSeparator(i-1)  # ItemPos。セパレーターのときは位置を設定するだけ。    
     return popupmenu
 def createWindow(toolkit, attr, props):  # ウィンドウタイトルは変更できない。attrはcom.sun.star.awt.WindowAttributeの和。propsはPositionX, PositionY, Width, Height, ParentIndex。
     aRect = Rectangle(X=props.pop("PositionX"), Y=props.pop("PositionY"), Width=props.pop("Width"), Height=props.pop("Height"))
