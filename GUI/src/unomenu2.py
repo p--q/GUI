@@ -50,8 +50,8 @@ def macro():
 			("Second Radio Entry", RADIOCHECK+AUTOCHECK),\
 			("Third Radio Entry", RADIOCHECK+AUTOCHECK, {"checkItem": True}),\
 			(),\
-			("Fifth Entry", CHECKABLE+AUTOCHECK),\
 			("Fourth Entry", CHECKABLE+AUTOCHECK, {"checkItem": True}),\
+			("Fifth Entry", CHECKABLE+AUTOCHECK),\
 			("Sixth Entry", 0),\
 			("~Close", 0, {"setCommand": "close"})
 	popupmenu =  createMenu("PopupMenu", items, {"addMenuListener": menulistener})  # 右クリックでまず呼び出すポップアップメニュー。
@@ -115,9 +115,9 @@ def menuCreator(ctx, smgr):  #  メニューバーまたはポップアップメ
 				if len(item) > 2:  # タプルの要素が3以上のときは3番目の要素は適用するメソッドの辞書と考える。
 					item = list(item)
 					attr[i] = item.pop()  # メニュー項目のIDをキーとしてメソッド辞書に付け替える。
-				menu.insertItem(i, *item, i-1)  # ItemId, Text, ItemSytle, ItemPos。
+				menu.insertItem(i, *item, i-1)  # ItemId, Text, ItemSytle, ItemPos。ItemIdは1から始まり区切り線は含まない。ItemPosは0から始まり区切り線を含む。
 			else:  # 空のタプルの時は区切り線と考える。
-				menu.insertSeparator(i)  # ItemPos
+				menu.insertSeparator(i-1)  # ItemPos
 		if attr:  # メソッドの適用。
 			for key, val in attr.items():  # keyはメソッド名あるいはメニュー項目のID。
 				if isinstance(val, dict):  # valが辞書の時はkeyは項目ID。valはcreateMenu()の引数のitemsであり、itemsの３番目の要素にキーをメソッド名とする辞書が入っている。
