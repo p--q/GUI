@@ -2,8 +2,8 @@
 from xml.etree import ElementTree
 def traceToRoot():
 	tree = ElementTree.parse('/opt/libreoffice5.2/share/registry/main.xcd')  # xmlデータからElementTreeオブジェクト(xml.etree.ElementTree.ElementTree)を取得する。ElementTree.parse()のElementTreeはオブジェクト名ではなくてモジュール名。
-	xpath = './/prop[@oor:name="StartCenterBackgroundColor"]'  # 子ノードを取得するXPath。1つのノードだけ選択する条件にしないといけない。
-# 	xpath = './/prop[@oor:name="CaptionText"]'  # 子ノードを取得するXPath。複数の子ノードを返ってくる例。うまく動かない。
+# 	xpath = './/prop[@oor:name="StartCenterBackgroundColor"]'  # 子ノードを取得するXPath。1つのノードだけ選択する条件にしないといけない。
+	xpath = './/prop[@oor:name="CaptionText"]'  # 子ノードを取得するXPath。複数の子ノードを返ってくる例。うまく動かない。
 	namespaces = {"oor": "{http://openoffice.org/2001/registry}",\
 			 "xs": "{http://www.w3.org/2001/XMLSchema}",\
 			 "xsi": "{http://www.w3.org/2001/XMLSchema-instance}",\
