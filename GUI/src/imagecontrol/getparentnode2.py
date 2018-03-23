@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from xml.etree import ElementTree
+from collections import ChainMap 
 def traceToRoot():
 	tree = ElementTree.parse('/opt/libreoffice5.2/share/registry/main.xcd')  # xmlデータからElementTreeオブジェクト(xml.etree.ElementTree.ElementTree)を取得する。ElementTree.parse()のElementTreeはオブジェクト名ではなくてモジュール名。
-	xpath = './/prop[@oor:name="StartCenterBackgroundColor"]'  # 子ノードを取得するXPath。1つのノードだけ選択する条件にしないといけない。
-# 	xpath = './/prop[@oor:name="CaptionText"]'  # 子ノードを取得するXPath。複数の子ノードを返ってくる例。うまく動かない。
+# 	xpath = './/prop[@oor:name="StartCenterBackgroundColor"]'  # 子ノードを取得するXPath。1つのノードだけ選択する条件にしないといけない。
+	xpath = './/prop[@oor:name="CaptionText"]'  # 子ノードを取得するXPath。複数の子ノードを返ってくる例。うまく動かない。
 	namespaces = {"oor": "{http://openoffice.org/2001/registry}",\
 			 "xs": "{http://www.w3.org/2001/XMLSchema}",\
 			 "xsi": "{http://www.w3.org/2001/XMLSchema-instance}",\
@@ -11,28 +12,18 @@ def traceToRoot():
 	replaceWithValue, replaceWithKey = createReplaceFunc(namespaces)
 	xpath = replaceWithValue(xpath)  # 名前空間の辞書のキーを値に変換。
 	nodes = tree.findall(xpath)  # 起点となる子ノードを取得。
-	if len(nodes)==1:
-		node = nodes[0]
-		print(replaceWithKey(formatNode(node)))  # 名前空間の辞書の値をキーに変換して出力する。
-		while node is not None:
-			xpath ="{}..".format(xpath)  # 親ノードのxpathを取得。
-			node = tree.find(xpath)  # 親ノードを取得。親はひとつのはずなのでfind()メソッドを使う。
-			if node is not None:  # 親ノードが取得できたとき
-				print(replaceWithKey(formatNode(node)))
-	elif len(nodes)>1:  # 調べる子ノードが複数あるとき。
-		for node in nodes:  # 各子ノードについて。
-			print("\n{}".format(replaceWithKey(formatNode(node))))  # 名前空間の辞書の値をキーに変換して出力する。
-			path = xpath  # 子ノードのxpathを取得。
-			childnode = node  # 子ノードを取得。
-			parentnodes = True
-			while parentnodes:  # 親ノードのリストの要素があるときTrue。
-				path ="{}..".format(path)  # 親ノードのxpathを取得。
-				parentnodes = tree.findall(path)  # 親ノードのリストを取得。
-				for parentnode in parentnodes:  # 各親ノードについて
-					if childnode in list(parentnode):  # 親ノードに子ノードのオブジェクトが存在するとき。
-						print(replaceWithKey(formatNode(parentnode)))  # 親ノードを出力。
-						childnode = parentnode  # 親ノードを子ノードにする。
-						break  # この階層を抜ける。
+	maps = []  # 子ノードをキー、親ノードの値とする辞書のリスト。
+	parentnodes = True
+	while parentnodes:  # 親ノードのリストの要素があるときTrue。
+		xpath = "/".join([xpath, ".."])  # 親のノードのxpathの取得。
+		parentnodes = tree.findall(xpath)  # 親ノードのリストを取得。
+		maps.append({c:p for p in parentnodes for c in p})  # 新たな辞書をリストに追加。
+	parentmap = ChainMap(*maps)  # 辞書をChainMapにする。
+	for c in nodes:  # 各子ノードについて。
+		print("\n{}".format(replaceWithKey(formatNode(c))))  # 名前空間の辞書の値をキーに変換して出力する。
+		while c in parentmap:  # 親ノードが存在する時。
+			c = parentmap[c]  # 親ノードを取得。
+			print(replaceWithKey(formatNode(c)))  # 親ノードを出力。
 def formatNode(node):  # 引数はElement オブジェクト。タグ名と属性を出力する。属性の順番は保障されない。
 	tag = node.tag  # タグ名を取得。
 	attribs = []  # 属性をいれるリスト。
