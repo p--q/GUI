@@ -30,6 +30,7 @@ def traceToRoot(filepath, xpath, namespaces, doc):  # xpathは子ノードを取
 		while c in parentmap:  # 親ノードが存在する時。
 			c = parentmap[c]  # 親ノードを取得。
 			outputs.append(replaceWithKey(formatNode(c)))  # 親ノードを出力。
+		outputs.append("")  # 空行を出力。
 	if outputs:
 		datarows = [(i,) for i in outputs]  # Calcに出力するために行のリストにする。
 		controller = doc.getCurrentController()  # コントローラーを取得。
